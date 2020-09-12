@@ -1,0 +1,155 @@
+* {
+  font-family: 'Cantarell', sans-serif;
+  font-family: 'Hind Madurai', sans-serif;
+
+  color: #e0e0e0;
+}
+
+body {
+  background-color: #616161;
+}
+
+.hide {
+  display: none;
+}
+
+.page-title {
+  text-align: center;
+}
+
+#play-btn:focus {
+  outline: 0;
+}
+#play-btn:hover {
+  box-shadow: 2px 2px #555;
+}
+#play-btn {
+  transition-duration: 0.3s;
+
+  background-image: url('../assets/play.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  border: none;
+  background-color: inherit;
+}
+
+#level {
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+/* signup page  */
+#signup-form,
+#signin-form {
+  width: 400px;
+  border: 2px #9e9e9e solid;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+p a {
+  color: #ffccbc;
+  text-decoration: underline;
+}
+p a:hover {
+  color: #ffccbc;
+  text-decoration: underline;
+}
+
+#about-game-paragraph {
+  text-align: justify;
+  width: 400px;
+}
+
+/* shake animation */
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-0.5deg);
+  }
+  20% {
+    transform: rotate(0.5deg);
+  }
+  30% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(0.5deg);
+  }
+  50% {
+    transform: rotate(-0.5deg);
+  }
+  60% {
+    transform: rotate(0deg);
+  }
+  70% {
+    transform: rotate(-0.5deg);
+  }
+  80% {
+    transform: rotate(0.5deg);
+  }
+  90% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-0.5deg);
+  }
+}
+
+.stop-shake-on-hover {
+  animation: shake 0.8s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+.stop-shake-on-hover:hover {
+  animation: none;
+}
+
+#header {
+  height: 44px;
+
+  margin: 0;
+  padding: 0;
+
+  background-color: #424242;
+  list-style: none;
+}
+
+#header > a {
+  text-decoration: none;
+}
+
+#header li {
+  color: #eeeeee;
+  display: inline-block;
+  padding: 10px 20px;
+
+  transition-duration: 0.1s;
+}
+#header li:hover {
+  background-color: #757575;
+}
+
+.float-left {
+  float: left;
+}
+.float-rigt {
+  float: right;
+}
+
+/* showing username on header */
+#header-username {
+  font-weight: bold;
+  background-color: #757575;
+}
+
+.alert button span {
+  color: rgb(48, 48, 48);
+}

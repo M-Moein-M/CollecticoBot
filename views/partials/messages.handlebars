@@ -1,0 +1,32 @@
+{{#if messages.error}}
+<div class="alert alert-danger" role="alert">
+  {{messages.error}}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div> {{/if}}
+
+{{#if messages.appMsg}}
+<div class="alert alert-success" role="alert">
+  {{messages.appMsg}}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div> {{/if}}
+
+{{#if messages.appMsgError}}
+<div class="alert alert-danger" role="alert">
+  {{messages.appMsgError}}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div> {{/if}}
+
+{{#each signupErrors}}
+<div class="alert alert-danger" role="alert">
+  {{this}}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+{{/each}}

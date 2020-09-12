@@ -1,0 +1,20 @@
+<ul id="header">
+  <a href="/" class="ml-5">
+    <li>Home</li>
+  </a>
+  {{#if isUserLogged}}
+  <a href="/logout">
+    <li class="float-rigt mr-5">Logout</li>
+  </a>
+
+  <li id="header-username" class="float-rigt mr-1">{{username}}</li>
+
+  {{else}}
+  <a href="/signin">
+    <li class="float-rigt mr-5">Sign-in</li>
+  </a>
+  <a href="/signup">
+    <li class="float-rigt">Sign-up</li>
+  </a>
+  {{/if}}
+</ul>

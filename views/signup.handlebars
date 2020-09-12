@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="row justify-content-center mt-5">
+    <h1>Sign up</h1>
+  </div>
+  <div class="row justify-content-center mt-5">
+
+    <form action="/signup" method="POST" id="signup-form" class="stop-shake-on-hover">
+
+      {{> messages}}
+
+      <div class="form-group">
+        <label for="Email">Email address</label>
+        <input type="email" class="form-control" id="email" name="email" aria-describedby="email" spellcheck="false"
+          required value={{#if email}} {{email}} {{/if}}>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" spellcheck="false" autocomplete="off" class="form-control" id="username" name="username"
+          required aria-describedby="username" value={{#if username}} {{username}} {{/if}}>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" class="form-control" id="password" required>
+      </div>
+
+      <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+  </div>
+  <div class="row justify-content-center mt-2">
+    <p>If you have an account <a href="/signin">log-in here</a></p>
+  </div>
+
+</div>
