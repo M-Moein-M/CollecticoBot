@@ -68,7 +68,7 @@ router.post('/', isNotAuthenticated, (req, res) => {
               email,
               username,
               password: bcrypt.hashSync(password, 10),
-              userLevel: 1,
+              varified: false, // telegram account is not synced to the website account
             };
             usersDatabase.insert(user);
 

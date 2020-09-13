@@ -29,7 +29,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: new NedbStore({
-      filename: path.join(__dirname, 'database', 'session-database'),
+      filename: path.join(__dirname, 'database', 'session-database.db'),
     }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 200, // 200 hours for session duration
