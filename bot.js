@@ -14,7 +14,9 @@ bot.command('start', (ctx) => {
     email: null,
     username: null,
     password: null,
+    telegramId: ctx.from.username.toLowerCase(),
     tagTable: [],
+    isVerified: false,
     verificationCode: verificationCode,
     _id: userId,
   });

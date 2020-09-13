@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="row justify-content-center mt-5">
+    <h1>Verification</h1>
+  </div>
+
+  <div class="row justify-content-center mt-5">
+
+    <form action="/verification" method="POST" id="verification-form" class="stop-shake-on-hover">
+
+      {{> messages}}
+
+      <div class="form-group">
+        <label for="verification-code">Enter the code "Collectico" sent you. You can just send "/start" to "Collectico"
+          to get your code</label>
+        <input type="text" class="form-control" id="verification-code" name="verificationCode" spellcheck="false"
+          required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label for="telegram-id">Enter your Telegram ID here(with no "@")</label>
+        <input type="text" class="form-control" id="telegram-id" name="telegramId" spellcheck="false" required
+          autocomplete="off">
+      </div>
+
+      <button type="submit" class="btn btn-success">Submit</button>
+
+    </form>
+  </div>
+
+</div>
