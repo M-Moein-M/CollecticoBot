@@ -24,10 +24,7 @@ router.post('/', isNotVerified, (req, res) => {
     }
 
     if (user == null) {
-      req.flash(
-        'appMsgError',
-        "This ID did not contact 'Collectico' yet(send '/start' to Collectico)"
-      );
+      req.flash('appMsgError', "This ID did not contact 'Collectico' yet");
       res.redirect('/verification');
       return;
     }
@@ -47,6 +44,7 @@ router.post('/', isNotVerified, (req, res) => {
             email: req.user.email,
             username: req.user.username,
             password: req.user.password,
+            isVerified: true,
           },
         },
         {},

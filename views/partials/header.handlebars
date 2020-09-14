@@ -3,6 +3,11 @@
     <li>Home</li>
   </a>
   {{#if isUserLogged}}
+  {{#unless isVerified}}
+  <a href="/verification">
+    <li>Verify</li>
+  </a>
+  {{/unless}}
   <a href="/logout">
     <li class="float-rigt mr-5">Logout</li>
   </a>
