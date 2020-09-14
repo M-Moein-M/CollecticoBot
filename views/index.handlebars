@@ -3,10 +3,19 @@
     <h2 class="mt-5">About</h2>
   </div>
   <div class="row justify-content-center">
-    <p id="about-game-paragraph">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet aut rem ut nostrum,
+    <p id="about-paragraph">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet aut rem ut nostrum,
       totam labore assumenda
       rerum quo! Saepe, recusandae debitis. Cum doloremque, odio nobis dolorum voluptatibus molestias error aspernatur.
     </p>
   </div>
+
+  {{#unless isVerified}}
+  <div class="row justify-content-center mt-5">
+    <p class="warning-paragraph">Your account isn't synced with your Telegram account.<br>Use <a
+        href="/verification">this
+        link</a> to verify your account.
+    </p>
+  </div>
+  {{/unless}}
 
 </div>

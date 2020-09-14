@@ -21,7 +21,7 @@ bot.command('start', (ctx) => {
     _id: userId,
   });
 
-  const replyTxt = `Okay... testing testing 1 2 3\n\nGlad we've you here. Just to get you started, here's your 6 character verification code to enter in the site to sync your Telegram accout with the account you registered:\n\n${verificationCode}`;
+  const replyTxt = `Glad we've you here. Just to get you started, here's your 6 character verification code to enter in the site to sync your Telegram accout with the account you registered: ${verificationCode}`;
   ctx.reply(replyTxt);
 });
 
