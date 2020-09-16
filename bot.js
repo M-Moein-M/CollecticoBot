@@ -133,24 +133,10 @@ async function handleNewPhoto(ctx) {
     if (err)
       console.log('Error in BOT-on-photo-event update imagesDatabase\n', err);
   });
-
-  // download(downloadURL, path.join(__dirname, 'photos', `${fileId}.jpg`), () =>
-  //   console.log('Done!')
-  // );
 }
 
 function generateUserId(teleId) {
   return bcrypt.hashSync(teleId, process.env.SALT);
 }
 
-// handling downloading sent image
-const fs = require('fs');
-const request = require('request');
-
-const download = (url, path, callback) => {
-  request.head(url, (err, res, body) => {
-    request(url).pipe(fs.createWriteStream(path)).on('close', callback);
-  });
-};
-
-module.exports = bot;
+module.exports = { bot, imagesDatabase };

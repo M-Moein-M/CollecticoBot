@@ -173,3 +173,19 @@ p a:hover {
 .tag-button:hover {
   background-color: var(--secondary-color);
 }
+
+.tag-selected {
+  text-align: center;
+
+  width: 100%;
+
+  text-decoration: none;
+
+  background-color: var(--secondary-color);
+
+  padding: 10px;
+  font-size: 1.2rem;
+
+  border: 1px var(--third-color) solid;
+  border-radius: 5px;
+}
