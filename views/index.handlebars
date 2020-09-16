@@ -9,6 +9,7 @@
     </p>
   </div>
 
+  {{#if isUserLogged}}
   {{#unless isVerified}}
   <div class="row justify-content-center mt-5">
     <p class="warning-paragraph">Your account isn't synced with your Telegram account.<br>Use <a
@@ -17,5 +18,5 @@
     </p>
   </div>
   {{/unless}}
-
+  {{/if}}
 </div>

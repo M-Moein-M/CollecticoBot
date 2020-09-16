@@ -61,6 +61,7 @@ app.set('view engine', 'handlebars');
 app.use('/', require(path.join(__dirname, 'routes', 'index.js')));
 app.use('/signup', require(path.join(__dirname, 'routes', 'signup')));
 app.use('/signin', require(path.join(__dirname, 'routes', 'signin')));
+app.use('/tags', require(path.join(__dirname, 'routes', 'tags')));
 
 app.get('/logout', (req, res) => {
   req.logout();

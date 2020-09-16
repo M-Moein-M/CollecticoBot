@@ -4,14 +4,14 @@ const flash = require('express-flash');
 
 const { usersDatabase } = require('../app.js');
 
-router.get('/', isNotVerified, (req, res) => {
+router.get('/', isAuthenticated, isNotVerified, (req, res) => {
   res.render('verification', {
     isUserLogged: req.isAuthenticated(),
     username: req.isAuthenticated() ? req.user.username : null,
   });
 });
 
-router.post('/', isNotVerified, (req, res) => {
+router.post('/', isAuthenticated, isNotVerified, (req, res) => {
   const teleId = req.body.telegramId.toLowerCase();
   const verificationCode = req.body.verificationCode;
 
@@ -90,6 +90,14 @@ function loginMergedUser(req, res, id) {
       return;
     });
   });
+}
+
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) next();
+  else {
+    req.flash('error', 'You need to log-in to verify your account');
+    res.redirect('/signin');
+  }
 }
 
 module.exports = router;

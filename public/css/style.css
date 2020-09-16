@@ -1,10 +1,12 @@
 :root {
-  /* gold */
-  --main-color: #aed6dc;
-  /* blue */
-  --secondary-color: #ff9a8d;
+  --main-color: #2c7873;
+
+  --secondary-color: #6fb98f;
+
+  --third-color: #004445;
+
   /* text */
-  --text-color: #424242;
+  --text-color: #e0f2f1;
 }
 
 * {
@@ -106,7 +108,8 @@ p a:hover {
   list-style: none;
 }
 
-#header > a {
+#header a,
+#header a:hover {
   text-decoration: none;
 }
 
@@ -148,4 +151,25 @@ p a:hover {
 .warning-paragraph a {
   text-decoration: underline;
   color: var(--text-color);
+}
+
+.tag-button {
+  text-align: center;
+
+  width: 100%;
+
+  text-decoration: none;
+
+  background-color: var(--third-color);
+
+  padding: 10px;
+  font-size: 1.2rem;
+
+  border: 1px var(--secondary-color) solid;
+  border-radius: 5px;
+
+  transition-duration: 0.1s;
+}
+.tag-button:hover {
+  background-color: var(--secondary-color);
 }
