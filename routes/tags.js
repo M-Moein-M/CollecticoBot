@@ -23,44 +23,40 @@ router.get('/:imageTags', isAuthenticated, isVerified, async (req, res) => {
   for (let i = 0; i < requestedTags.length; i++)
     if (requestedTags[i] == '') requestedTags.splice(i, 1); // remove '' in array
 
+  // if (requestedTags.length == 0) res.json({ msg: 'No tags selected' });
+
   console.log(requestedTags);
 
-  const images = getImages(requestedTags, req.user._id, res);
-  console.log('images:\n', images);
+  sendImages(requestedTags, req.user._id, res);
 });
 
-function getImages(tags, userId, res) {
+function sendImages(tags, userId, res) {
   usersDatabase.findOne({ _id: userId }, async (err, user) => {
-    images = [];
+    const images = []; // this will be returned to client
+    const imagesAdded = [];
     for (let tag of tags) {
-      const imgArr = user.tagTable[tag];
-      console.log(imgArr);
-      await insertNewImages(imgArr, res);
+      const imgArr = user.tagTable[tag]; // this is the array of fileIds for images with specefic tag
+
+      for (let imgId of imgArr) {
+        if (imagesAdded.includes(imgId)) continue;
+        else {
+          imagesAdded.push(imgId); // save this image as added
+          images.push(findImage(user.imagesInfo, imgId));
+        }
+      }
+      console.log(images);
+      res.json({ images: images });
     }
   });
 
-  async function insertNewImages(imgArr, res) {
-    let images = [];
-    let imagesAdded = [];
-    // ???????????????
-    for (let imgId of imgArr) {
-      if (imagesAdded.includes(imgId)) continue;
-      else {
-        await imagesDatabase.findOne({ _id: imgId }, (err, imageFound) => {
-          if (err) return console.log('Error in insertNewImages\n', err);
-
-          const newImg = { url: imageFound.url, tags: imageFound.tags };
-
-          images.push(newImg);
-          imagesAdded.push(imgId);
-
-          console.log('pushed', imgId);
-        });
+  function findImage(imagesInfo, imgId) {
+    for (let img of imagesInfo) {
+      if (img.fileId == imgId) {
+        return { url: img.url, imageTags: img.imageTags };
       }
     }
-    console.log(imagesAdded);
-    console.log(images);
-    res.json({ images: images });
+    console.log('No image found');
+    return null;
   }
 }
 

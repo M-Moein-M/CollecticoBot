@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const tagsBtn = document.querySelectorAll('.tag-button');
   for (let btn of tagsBtn) {
     btn.addEventListener('click', () => {
-      console.log(btn.id);
       btn.blur();
       document
         .getElementById(btn.id.toString())
@@ -18,7 +17,7 @@ async function loadTags() {
   for (let tag of tagsSelected) {
     tags += '-' + tag.id;
   }
-  console.log(tags);
+  if (tagsSelected.length == 0) return;
 
   const fetchURL = `/tags/${tags}`;
   const res = await fetch(fetchURL);
