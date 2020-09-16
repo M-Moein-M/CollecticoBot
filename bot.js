@@ -7,11 +7,6 @@ const Datastore = require('nedb');
 
 const { usersDatabase } = require('./app.js');
 
-const imagesDatabase = new Datastore({
-  filename: path.join(__dirname, 'database', 'images-databse.db'),
-  autoload: true,
-});
-
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.command('start', (ctx) => {
   const userId = generateUserId(ctx.from.id.toString());
@@ -22,6 +17,7 @@ bot.command('start', (ctx) => {
     username: null,
     password: null,
     telegramId: ctx.from.username.toLowerCase(),
+    imagesInfo: [], // stores information about images. Like url, fileId, imageTags
     untaggedImages: [],
     tagTable: {},
     isVerified: false,
@@ -60,59 +56,61 @@ function tagImages(ctx) {
 
   // tagging user's untagged images
   const senderId = ctx.update.message.from.id.toString();
-  usersDatabase.findOne({ _id: generateUserId(senderId) }, (err, user) => {
-    if (err) return console.log('Error in tagImage()\n', err);
-    let tagTable = user.tagTable;
-    let existingTags = Object.keys(tagTable);
-    let untaggedImages = user.untaggedImages;
-    for (let tag of newTags) {
-      // create new tag is it doesnt exist
-      if (!existingTags.includes(tag)) {
-        tagTable[tag] = [];
-      }
+  usersDatabase.findOne(
+    { _id: generateUserId(senderId) },
+    async (err, user) => {
+      if (err) return console.log('Error in tagImage()\n', err);
+      let tagTable = user.tagTable;
+      let existingTags = Object.keys(tagTable);
+      let untaggedImages = user.untaggedImages;
+      for (let tag of newTags) {
+        // create new tag is it doesnt exist
+        if (!existingTags.includes(tag)) {
+          tagTable[tag] = [];
+        }
 
-      for (let img of untaggedImages) {
-        tagTable[tag].push(img);
-      }
-    }
-
-    usersDatabase.update(
-      { _id: user._id },
-      { $set: { untaggedImages: [], tagTable: tagTable } },
-      {},
-      (err) => {
-        if (err) {
-          console.log('Error in database update TageImage()', err);
+        for (let img of untaggedImages) {
+          tagTable[tag].push(img);
         }
       }
-    );
 
-    for (let img of untaggedImages) {
-      imagesDatabase.update(
-        { _id: img },
-        { $set: { tags: newTags } },
+      usersDatabase.update(
+        { _id: user._id },
+        { $set: { untaggedImages: [], tagTable: tagTable } },
         {},
         (err) => {
           if (err) {
-            console.log('Error in image tag update TageImage()', err);
+            console.log('Error in database update TageImage()', err);
           }
         }
       );
+
+      for (let imgId of untaggedImages) {
+        const imageURL = await getImageURL(imgId);
+        const newImg = { url: imageURL, fileId: imgId, imageTags: newTags };
+        usersDatabase.update(
+          { _id: user._id },
+          { $push: { imagesInfo: newImg } }
+        );
+      }
     }
-  });
+  );
 }
 
-async function handleNewPhoto(ctx) {
-  const fileId = ctx.update.message.photo[0].file_id;
-
+async function getImageURL(fileId) {
   const res = await fetch(
     `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
   );
 
   const res2 = await res.json();
   const filePath = res2.result.file_path;
+  return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
+}
 
-  const downloadURL = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
+async function handleNewPhoto(ctx) {
+  const fileId = ctx.update.message.photo[0].file_id;
+
+  const downloadURL = await getImageURL(fileId);
 
   // save newly sent image to untagged images
   const senderId = ctx.update.message.from.id.toString();
@@ -128,15 +126,10 @@ async function handleNewPhoto(ctx) {
         );
     }
   );
-  // save new image to images database
-  imagesDatabase.insert({ url: downloadURL, tags: [], _id: fileId }, (err) => {
-    if (err)
-      console.log('Error in BOT-on-photo-event update imagesDatabase\n', err);
-  });
 }
 
 function generateUserId(teleId) {
   return bcrypt.hashSync(teleId, process.env.SALT);
 }
 
-module.exports = { bot, imagesDatabase };
+module.exports = bot;
