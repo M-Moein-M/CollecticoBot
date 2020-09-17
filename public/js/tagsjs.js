@@ -34,13 +34,16 @@ async function loadTags() {
 function showTaggedImages(imgData) {
   const template = `
     {{#each imgData.images}}
-    <div class="col-sm-6 col-md-4">
-    <img src="{{this.url}}" alt="" class="rounded">
-    <div> 
+    <div class="col-sm-6 col-md-4 images-div mt-5">
+
+    <img src="{{this.url}}" alt="" class="img-thumbnail">
+
+    <div class="mt-2">
     {{#each this.imageTags}}
-      #{{this}} 
+      <div class="tag">#{{this}} </div>
     {{/each}}
     </div>
+    
     </div>
     {{/each}}
   `;

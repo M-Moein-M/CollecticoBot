@@ -189,3 +189,23 @@ p a:hover {
   border: 1px var(--third-color) solid;
   border-radius: 5px;
 }
+
+.images-div {
+  text-align: center;
+}
+
+.images-div img {
+  border: 1px var(--third-color) solid;
+}
+
+.images-div .tag {
+  background-color: var(--secondary-color);
+  padding: 3px;
+
+  border: 1px var(--third-color) solid;
+  border-radius: 5px;
+
+  display: inline-block;
+
+  font-size: 0.8rem;
+}
