@@ -12,53 +12,59 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
     }
     const tags = Object.keys(user.tagTable);
 
-    res.render('tags', { tags, jsFile: 'tagsjs.js' });
+    res.render('tags', {
+      tags,
+      jsFile: 'tagsjs.js',
+      isUserLogged: req.isAuthenticated(),
+      username: req.isAuthenticated() ? req.user.username : null,
+      isVerified: req.isAuthenticated() ? req.user.isVerified : false,
+    });
   });
 });
 
 // get the url of files
 // we consider that the received requests will seperate the tags with '-', like: -nature-book-school or nature-book-school
-router.get('/:imageTags', isAuthenticated, isVerified, async (req, res) => {
+router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
   const requestedTags = req.params.imageTags.split('-');
   for (let i = 0; i < requestedTags.length; i++)
     if (requestedTags[i] == '') requestedTags.splice(i, 1); // remove '' in array
 
-  // if (requestedTags.length == 0) res.json({ msg: 'No tags selected' });
+  if (requestedTags.length == 0) {
+    return res.json({ images: [], msg: 'No tags selected' });
+  } else {
+    const userId = req.user._id;
+    const tags = requestedTags;
 
-  console.log(requestedTags);
+    usersDatabase.findOne({ _id: userId }, (err, user) => {
+      const images = []; // this will be returned to client
+      const imagesAdded = [];
+      for (let tag of tags) {
+        const imgArr = user.tagTable[tag]; // this is the array of fileIds for images with specefic tag
 
-  sendImages(requestedTags, req.user._id, res);
-});
+        for (let imgId of imgArr) {
+          if (imagesAdded.includes(imgId)) continue;
+          else {
+            imagesAdded.push(imgId); // save this image as added
+            images.push(findImage(user.imagesInfo, imgId));
+          }
+        }
 
-function sendImages(tags, userId, res) {
-  usersDatabase.findOne({ _id: userId }, async (err, user) => {
-    const images = []; // this will be returned to client
-    const imagesAdded = [];
-    for (let tag of tags) {
-      const imgArr = user.tagTable[tag]; // this is the array of fileIds for images with specefic tag
+        return res.json({ images: images });
+      }
+    });
 
-      for (let imgId of imgArr) {
-        if (imagesAdded.includes(imgId)) continue;
-        else {
-          imagesAdded.push(imgId); // save this image as added
-          images.push(findImage(user.imagesInfo, imgId));
+    // gets the image saved in user.imagesInfo and retrieves the url and image tags
+    function findImage(imagesInfo, imgId) {
+      for (let img of imagesInfo) {
+        if (img.fileId == imgId) {
+          return { url: img.url, imageTags: img.imageTags };
         }
       }
-      console.log(images);
-      res.json({ images: images });
+      console.log('No image found');
+      return null;
     }
-  });
-
-  function findImage(imagesInfo, imgId) {
-    for (let img of imagesInfo) {
-      if (img.fileId == imgId) {
-        return { url: img.url, imageTags: img.imageTags };
-      }
-    }
-    console.log('No image found');
-    return null;
   }
-}
+});
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) next();

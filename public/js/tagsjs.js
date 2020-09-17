@@ -22,5 +22,5 @@ async function loadTags() {
   const fetchURL = `/tags/${tags}`;
   const res = await fetch(fetchURL);
   const data = await res.json();
-  console.log('==))  ', data);
+  console.log(data);
 }
