@@ -17,10 +17,34 @@ async function loadTags() {
   for (let tag of tagsSelected) {
     tags += '-' + tag.id;
   }
-  if (tagsSelected.length == 0) return;
+  if (tagsSelected.length == 0) {
+    // remove all the images
+    while (document.getElementById('tagged-images').childElementCount > 0)
+      document.getElementById('tagged-images').firstChild.remove();
+    return;
+  }
 
   const fetchURL = `/tags/${tags}`;
   const res = await fetch(fetchURL);
   const data = await res.json();
   console.log(data);
+  showTaggedImages(data);
+}
+
+function showTaggedImages(imgData) {
+  const template = `
+    {{#each imgData.images}}
+    <div class="col-sm-6 col-md-4">
+    <img src="{{this.url}}" alt="" class="rounded">
+    <div> 
+    {{#each this.imageTags}}
+      #{{this}} 
+    {{/each}}
+    </div>
+    </div>
+    {{/each}}
+  `;
+  var compiledTemplate = Handlebars.compile(template);
+  var generatedHTML = compiledTemplate({ imgData });
+  document.getElementById('tagged-images').innerHTML = generatedHTML;
 }

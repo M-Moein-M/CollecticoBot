@@ -11,9 +11,10 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
       res.redirect('/');
     }
     const tags = Object.keys(user.tagTable);
+    const sortedTags = tags.sort();
 
     res.render('tags', {
-      tags,
+      tags: sortedTags,
       jsFile: 'tagsjs.js',
       isUserLogged: req.isAuthenticated(),
       username: req.isAuthenticated() ? req.user.username : null,
@@ -38,6 +39,7 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
     usersDatabase.findOne({ _id: userId }, (err, user) => {
       const images = []; // this will be returned to client
       const imagesAdded = [];
+
       for (let tag of tags) {
         const imgArr = user.tagTable[tag]; // this is the array of fileIds for images with specefic tag
 
@@ -48,9 +50,8 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
             images.push(findImage(user.imagesInfo, imgId));
           }
         }
-
-        return res.json({ images: images });
       }
+      return res.json({ images: images });
     });
 
     // gets the image saved in user.imagesInfo and retrieves the url and image tags
