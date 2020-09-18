@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<div id="main-ui" class="container mt-5">
   <div class="row justify-content-around">
     {{#each tags}}
     <div class="col-sm-4 col-md-3 m-1">
@@ -9,4 +9,20 @@
 
   <div id="tagged-images" class="row justify-content-center mt-5">
   </div>
+</div>
+
+<div id="overlay" class="hide">
+
+  <img id="modal-image" class="img-thumbnail mx-auto my-auto d-block" src="" alt="selected image" />
+
+  <div class="m-3 modal-links">
+    <p>
+      <a id="modal-image-download-link" href="">Download
+        link</a>
+    </p>
+    <p>
+      <a id="modal-close-link" href="">Close</a>
+    </p>
+  </div>
+
 </div>

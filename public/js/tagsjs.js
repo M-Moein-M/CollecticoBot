@@ -50,4 +50,32 @@ function showTaggedImages(imgData) {
   var compiledTemplate = Handlebars.compile(template);
   var generatedHTML = compiledTemplate({ imgData });
   document.getElementById('tagged-images').innerHTML = generatedHTML;
+
+  addEventToImages();
 }
+
+function addEventToImages() {
+  const images = document.querySelectorAll('.images-div img');
+  for (let i of images) i.addEventListener('click', showModal);
+  console.log(images);
+}
+
+function showModal() {
+  const src = this.src;
+  document.getElementById('modal-image').src = src;
+  document.getElementById('modal-image-download-link').href = src;
+
+  // show modal
+  document.getElementById('overlay').classList.remove('hide');
+  document.getElementById('main-ui').classList.add('blurred');
+}
+
+// closing modal
+document.getElementById('overlay').addEventListener('click', (e) => {
+  document.getElementById('overlay').classList.add('hide');
+  document.getElementById('main-ui').classList.remove('blurred');
+});
+
+document.getElementById('modal-close-link').addEventListener('click', (e) => {
+  e.preventDefault();
+});

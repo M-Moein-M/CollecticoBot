@@ -3,10 +3,17 @@
 
   --secondary-color: #6fb98f;
 
+  --overlay-bg: rgba(0, 68, 69, 0.8);
+
   --third-color: #004445;
 
   /* text */
   --text-color: #e0f2f1;
+}
+
+a,
+a:hover {
+  text-decoration: none;
 }
 
 * {
@@ -18,10 +25,6 @@
 
 body {
   background-color: var(--main-color);
-}
-
-.hide {
-  display: none;
 }
 
 .page-title {
@@ -36,13 +39,6 @@ body {
   border: 2px var(--secondary-color) solid;
   border-radius: 5px;
   padding: 20px;
-}
-
-p a {
-  text-decoration: underline;
-}
-p a:hover {
-  text-decoration: underline;
 }
 
 #about-paragraph {
@@ -106,11 +102,6 @@ p a:hover {
 
   background-color: var(--secondary-color);
   list-style: none;
-}
-
-#header a,
-#header a:hover {
-  text-decoration: none;
 }
 
 #header li {
@@ -208,4 +199,58 @@ p a:hover {
   display: inline-block;
 
   font-size: 0.8rem;
+}
+
+/* used in tags.handlebars */
+#overlay {
+  z-index: 1;
+  display: flex;
+  position: fixed;
+
+  justify-content: center;
+  flex-direction: column;
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-color: var(--overlay-bg);
+}
+
+#overlay img {
+  max-width: 100%;
+  vertical-align: middle;
+  height: auto;
+}
+
+.hide {
+  display: none;
+  visibility: hidden;
+  position: fixed;
+
+  /* remove the scroll while showing the modal */
+  height: 0;
+}
+
+.blurred {
+  filter: blur(5px);
+}
+
+.images-div img {
+  transition-duration: 0.2s;
+}
+.images-div img:hover {
+  box-shadow: 5px 5px var(--third-color);
+  cursor: pointer;
+}
+
+.modal-links a {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  text-decoration: underline;
+}
+.modal-links p {
+  text-align: center;
 }
