@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const path = require('path');
+const fetch = require('node-fetch');
 
 const { usersDatabase, passport } = require(path.resolve('app.js'));
-const { imagesDatabase } = require(path.resolve('bot.js'));
 
 router.get('/', isAuthenticated, isVerified, (req, res) => {
   usersDatabase.findOne({ _id: req.user._id }, (err, user) => {
@@ -36,7 +36,7 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
     const userId = req.user._id;
     const tags = requestedTags;
 
-    usersDatabase.findOne({ _id: userId }, (err, user) => {
+    usersDatabase.findOne({ _id: userId }, async (err, user) => {
       const images = []; // this will be returned to client
       const imagesAdded = [];
 
@@ -47,19 +47,20 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
           if (imagesAdded.includes(imgId)) continue;
           else {
             imagesAdded.push(imgId); // save this image as added
-            images.push(findImage(user.imagesInfo, imgId));
+            images.push(await findImage(user.imagesInfo, imgId));
           }
         }
       }
       return res.json({ images: images });
     });
 
-    // gets the image saved in user.imagesInfo and retrieves the url and image tags
-    function findImage(imagesInfo, imgId) {
+    // gets the image saved in user.imagesInfo and retrieves the id(the index of image in array) and image tags
+    async function findImage(imagesInfo, imgId) {
       let requestedImgID = 0; // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
       for (let img of imagesInfo) {
         if (img.fileId == imgId) {
-          return { url: img.url, imageTags: img.imageTags, id: requestedImgID };
+          const url = await getImageURL(imgId);
+          return { url: url, imageTags: img.imageTags, id: requestedImgID };
         }
         requestedImgID++;
       }
@@ -83,6 +84,16 @@ function isVerified(req, res, next) {
   } else {
     req.redirect('verification');
   }
+}
+
+async function getImageURL(fileId) {
+  const res = await fetch(
+    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
+  );
+
+  const res2 = await res.json();
+  const filePath = res2.result.file_path;
+  return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
 }
 
 module.exports = router;

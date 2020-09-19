@@ -1,9 +1,7 @@
 const { Telegraf } = require('telegraf');
 require('dotenv').config();
-const path = require('path');
-const fetch = require('node-fetch');
+
 const bcrypt = require('bcrypt');
-const Datastore = require('nedb');
 
 const { usersDatabase } = require('./app.js');
 
@@ -86,8 +84,7 @@ function tagImages(ctx) {
       );
 
       for (let imgId of untaggedImages) {
-        const imageURL = await getImageURL(imgId);
-        const newImg = { url: imageURL, fileId: imgId, imageTags: newTags };
+        const newImg = { fileId: imgId, imageTags: newTags };
         usersDatabase.update(
           { _id: user._id },
           { $push: { imagesInfo: newImg } }
@@ -97,20 +94,8 @@ function tagImages(ctx) {
   );
 }
 
-async function getImageURL(fileId) {
-  const res = await fetch(
-    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
-  );
-
-  const res2 = await res.json();
-  const filePath = res2.result.file_path;
-  return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
-}
-
 async function handleNewPhoto(ctx) {
   const fileId = ctx.update.message.photo[0].file_id;
-
-  const downloadURL = await getImageURL(fileId);
 
   // save newly sent image to untagged images
   const senderId = ctx.update.message.from.id.toString();
