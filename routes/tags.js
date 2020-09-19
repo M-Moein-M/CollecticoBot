@@ -59,8 +59,15 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
       let requestedImgID = 0; // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
       for (let img of imagesInfo) {
         if (img.fileId == imgId) {
-          const url = await getImageURL(imgId);
-          return { url: url, imageTags: img.imageTags, id: requestedImgID };
+          // it is guaranteed by Telegram that the link will be valid for at least 1 hour
+          if (img.urlUpdatTime + 60 * 60 * 1000 <= Date.now()) {
+            // fetch new url
+            const url = await getImageURL(imgId);
+            return { url: url, imageTags: img.imageTags, id: requestedImgID };
+          } else {
+            const url = img.url;
+            return { url: url, imageTags: img.imageTags, id: requestedImgID };
+          }
         }
         requestedImgID++;
       }
@@ -96,4 +103,4 @@ async function getImageURL(fileId) {
   return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
 }
 
-module.exports = router;
+module.exports = { router, getImageURL };

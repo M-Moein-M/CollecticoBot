@@ -1,4 +1,5 @@
 const { Telegraf } = require('telegraf');
+const path = require('path');
 require('dotenv').config();
 
 const bcrypt = require('bcrypt');
@@ -6,6 +7,7 @@ const bcrypt = require('bcrypt');
 const { usersDatabase } = require('./app.js');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
+
 bot.command('start', (ctx) => {
   const userId = generateUserId(ctx.from.id.toString());
   const verificationCode = userId.substr(userId.length - 6).toLowerCase(); // consider last 6 characters as verification code
@@ -84,7 +86,12 @@ function tagImages(ctx) {
       );
 
       for (let imgId of untaggedImages) {
-        const newImg = { fileId: imgId, imageTags: newTags };
+        const newImg = {
+          url: await getImageURL(imgId),
+          urlUpdatTime: Date.now(),
+          fileId: imgId,
+          imageTags: newTags,
+        };
         usersDatabase.update(
           { _id: user._id },
           { $push: { imagesInfo: newImg } }
@@ -116,5 +123,7 @@ async function handleNewPhoto(ctx) {
 function generateUserId(teleId) {
   return bcrypt.hashSync(teleId, process.env.SALT);
 }
+
+const getImageURL = require(path.join(__dirname, 'routes', 'tags')).getImageURL;
 
 module.exports = bot;
