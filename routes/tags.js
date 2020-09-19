@@ -56,10 +56,12 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
 
     // gets the image saved in user.imagesInfo and retrieves the url and image tags
     function findImage(imagesInfo, imgId) {
+      let requestedImgID = 0; // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
       for (let img of imagesInfo) {
         if (img.fileId == imgId) {
-          return { url: img.url, imageTags: img.imageTags };
+          return { url: img.url, imageTags: img.imageTags, id: requestedImgID };
         }
+        requestedImgID++;
       }
       console.log('No image found');
       return null;

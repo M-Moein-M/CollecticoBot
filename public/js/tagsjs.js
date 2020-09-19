@@ -36,7 +36,7 @@ function showTaggedImages(imgData) {
     {{#each imgData.images}}
     <div class="col-sm-6 col-md-4 images-div mt-5">
 
-    <img src="{{this.url}}" alt="" class="img-thumbnail">
+    <img id="{{this.id}}" src="{{this.url}}" alt="" class="img-thumbnail">
 
     <div class="mt-2">
     {{#each this.imageTags}}
