@@ -37,6 +37,7 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
     const tags = requestedTags;
 
     usersDatabase.findOne({ _id: userId }, async (err, user) => {
+      if (err) console.log('Error in findOne callback\n', err);
       const images = []; // this will be returned to client
       const imagesAdded = [];
 
@@ -47,7 +48,7 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
           if (imagesAdded.includes(imgId)) continue;
           else {
             imagesAdded.push(imgId); // save this image as added
-            images.push(await findImage(user.imagesInfo, imgId));
+            images.push(await findImage(user.imagesInfo, imgId, user._id));
           }
         }
       }
@@ -55,21 +56,39 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
     });
 
     // gets the image saved in user.imagesInfo and retrieves the id(the index of image in array) and image tags
-    async function findImage(imagesInfo, imgId) {
-      let requestedImgID = 0; // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
-      for (let img of imagesInfo) {
+    async function findImage(imagesInfo, imgId, userId) {
+      // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
+      for (let i = 0; i < imagesInfo.length; i++) {
+        const img = imagesInfo[i];
         if (img.fileId == imgId) {
           // it is guaranteed by Telegram that the link will be valid for at least 1 hour
+
           if (img.urlUpdatTime + 60 * 60 * 1000 <= Date.now()) {
             // fetch new url
             const url = await getImageURL(imgId);
-            return { url: url, imageTags: img.imageTags, id: requestedImgID };
+
+            // updating 'urlUpdatTime'
+
+            imagesInfo[i].urlUpdatTime = Date.now();
+
+            usersDatabase.update(
+              { _id: userId },
+              { $set: { imagesInfo: imagesInfo } },
+              {},
+              (err) => {
+                if (err) {
+                  console.log('Error in updating urlUpdateTime', err);
+                }
+              }
+            );
+
+            return { url: url, imageTags: img.imageTags, id: i };
           } else {
             const url = img.url;
-            return { url: url, imageTags: img.imageTags, id: requestedImgID };
+
+            return { url: url, imageTags: img.imageTags, id: i };
           }
         }
-        requestedImgID++;
       }
       console.log('No image found');
       return null;
