@@ -181,15 +181,15 @@ body {
   border-radius: 5px;
 }
 
-.images-div {
+.files-div {
   text-align: center;
 }
 
-.images-div img {
+.files-div img {
   border: 1px var(--third-color) solid;
 }
 
-.images-div .tag {
+.files-div .tag {
   background-color: var(--secondary-color);
   padding: 3px;
 
@@ -207,7 +207,6 @@ body {
   display: flex;
   position: fixed;
 
-  justify-content: center;
   flex-direction: column;
 
   top: 0;
@@ -215,12 +214,12 @@ body {
   left: 0;
   right: 0;
 
+  overflow: auto;
   background-color: var(--overlay-bg);
 }
 
 #overlay img {
   max-width: 100%;
-  vertical-align: middle;
   height: auto;
 }
 
@@ -237,10 +236,10 @@ body {
   filter: blur(5px);
 }
 
-.images-div img {
+.files-div img {
   transition-duration: 0.2s;
 }
-.images-div img:hover {
+.files-div img:hover {
   box-shadow: 5px 5px var(--third-color);
   cursor: pointer;
 }
@@ -254,3 +253,7 @@ body {
 .modal-links p {
   text-align: center;
 }
+
+/* #modal-file {
+  max-height: 90%;
+} */
