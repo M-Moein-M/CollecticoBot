@@ -25,55 +25,55 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
 
 // get the url of files
 // we consider that the received requests will seperate the tags with '-', like: -nature-book-school or nature-book-school
-router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
-  const requestedTags = req.params.imageTags.split('-');
+router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
+  const requestedTags = req.params.fileTags.split('-');
   for (let i = 0; i < requestedTags.length; i++)
     if (requestedTags[i] == '') requestedTags.splice(i, 1); // remove '' in array
 
   if (requestedTags.length == 0) {
-    return res.json({ images: [], msg: 'No tags selected' });
+    return res.json({ files: [], msg: 'No tags selected' });
   } else {
     const userId = req.user._id;
     const tags = requestedTags;
 
     usersDatabase.findOne({ _id: userId }, async (err, user) => {
       if (err) console.log('Error in findOne callback\n', err);
-      const images = []; // this will be returned to client
-      const imagesAdded = [];
+      const files = []; // this will be returned to client
+      const filesAdded = [];
 
       for (let tag of tags) {
-        const imgArr = user.tagTable[tag]; // this is the array of fileIds for images with specefic tag
+        const fArr = user.tagTable[tag]; // this is the array of fileIds for files with specefic tag
 
-        for (let imgId of imgArr) {
-          if (imagesAdded.includes(imgId)) continue;
+        for (let fId of fArr) {
+          if (filesAdded.includes(fId)) continue;
           else {
-            imagesAdded.push(imgId); // save this image as added
-            images.push(await findImage(user.imagesInfo, imgId, user._id));
+            filesAdded.push(fId); // save this file as added
+            files.push(await findFile(user.filesInfo, fId, user._id));
           }
         }
       }
-      return res.json({ images: images });
+      return res.json({ files: files });
     });
 
-    // gets the image saved in user.imagesInfo and retrieves the id(the index of image in array) and image tags
-    async function findImage(imagesInfo, imgId, userId) {
-      // ** the index of image in imagesInfo array is the id for that image that gets sent to the client
-      for (let i = 0; i < imagesInfo.length; i++) {
-        const img = imagesInfo[i];
-        if (img.fileId == imgId) {
+    // gets the file saved in user.filesInfo and retrieves the id(the index of file in array) and file tags
+    async function findFile(filesInfo, fId, userId) {
+      // ** the index of file in filesInfo array is the id for that file that gets sent to the client
+      for (let i = 0; i < filesInfo.length; i++) {
+        const f = filesInfo[i];
+        if (f.fileId == fId) {
           // it is guaranteed by Telegram that the link will be valid for at least 1 hour
 
-          if (img.urlUpdatTime + 60 * 60 * 1000 <= Date.now()) {
+          if (f.urlUpdatTime + 60 * 60 * 1000 <= Date.now()) {
             // fetch new url
-            const url = await getImageURL(imgId);
+            const url = await getFileURL(fId);
 
             // updating 'urlUpdatTime'
 
-            imagesInfo[i].urlUpdatTime = Date.now();
+            filesInfo[i].urlUpdatTime = Date.now();
 
             usersDatabase.update(
               { _id: userId },
-              { $set: { imagesInfo: imagesInfo } },
+              { $set: { filesInfo: filesInfo } },
               {},
               (err) => {
                 if (err) {
@@ -82,15 +82,15 @@ router.get('/:imageTags', isAuthenticated, isVerified, (req, res) => {
               }
             );
 
-            return { url: url, imageTags: img.imageTags, id: i };
+            return { url: url, fileTags: f.fileTags, id: i };
           } else {
-            const url = img.url;
+            const url = f.url;
 
-            return { url: url, imageTags: img.imageTags, id: i };
+            return { url: url, fileTags: f.fileTags, id: i };
           }
         }
       }
-      console.log('No image found');
+      console.log('No file found');
       return null;
     }
   }
@@ -112,7 +112,7 @@ function isVerified(req, res, next) {
   }
 }
 
-async function getImageURL(fileId) {
+async function getFileURL(fileId) {
   const res = await fetch(
     `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
   );
@@ -122,4 +122,4 @@ async function getImageURL(fileId) {
   return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
 }
 
-module.exports = { router, getImageURL };
+module.exports = { router, getFileURL };

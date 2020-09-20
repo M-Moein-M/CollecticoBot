@@ -17,8 +17,8 @@ bot.command('start', (ctx) => {
     username: null,
     password: null,
     telegramId: ctx.from.username.toLowerCase(),
-    imagesInfo: [], // stores information about images. Like url, fileId, imageTags
-    untaggedImages: [],
+    filesInfo: [], // stores information about files. Like url, fileId, fileTags
+    untaggedFiles: [],
     tagTable: {},
     isVerified: false,
     verificationCode: verificationCode,
@@ -32,19 +32,22 @@ bot.command('start', (ctx) => {
 bot.on('message', async (ctx) => {
   // message is a text
   if (Boolean(ctx.update.message.text)) {
-    // tagging the untagged images
-    console.log('tags received');
-    tagImages(ctx);
+    // tagging the untagged files
+    console.log('Tags received');
+    tagFiles(ctx);
   } else if (Boolean(ctx.update.message.photo)) {
     // message is a photo
-    console.log('adding photo');
-    handleNewPhoto(ctx);
+    console.log('Adding photo');
+    handleNewFile(ctx);
+  } else if (Boolean(ctx.update.message.document)) {
+    console.log('File received');
+    handleNewFile(ctx);
   }
 });
 
 bot.launch();
 
-function tagImages(ctx) {
+function tagFiles(ctx) {
   let msg = ctx.update.message.text;
 
   // for some reason replaceAll threw error
@@ -54,61 +57,68 @@ function tagImages(ctx) {
   const newTags = msg.split(/[ ,]+/).filter(Boolean); // removes the wite space and extracts the tags
   console.log(newTags);
 
-  // tagging user's untagged images
+  // tagging user's untagged files
   const senderId = ctx.update.message.from.id.toString();
   usersDatabase.findOne(
     { _id: generateUserId(senderId) },
     async (err, user) => {
-      if (err) return console.log('Error in tagImage()\n', err);
+      if (err) return console.log('Error in tagFile()\n', err);
       let tagTable = user.tagTable;
       let existingTags = Object.keys(tagTable);
-      let untaggedImages = user.untaggedImages;
+      let untaggedFiles = user.untaggedFiles;
       for (let tag of newTags) {
         // create new tag is it doesnt exist
         if (!existingTags.includes(tag)) {
           tagTable[tag] = [];
         }
 
-        for (let img of untaggedImages) {
-          tagTable[tag].push(img);
+        for (let f of untaggedFiles) {
+          tagTable[tag].push(f);
         }
       }
 
       usersDatabase.update(
         { _id: user._id },
-        { $set: { untaggedImages: [], tagTable: tagTable } },
+        { $set: { untaggedFiles: [], tagTable: tagTable } },
         {},
         (err) => {
           if (err) {
-            console.log('Error in database update TageImage()', err);
+            console.log('Error in database update TagFile()', err);
           }
         }
       );
 
-      for (let imgId of untaggedImages) {
+      for (let fId of untaggedFiles) {
         const newImg = {
-          url: await getImageURL(imgId),
+          url: await getFileURL(fId),
           urlUpdatTime: Date.now(),
-          fileId: imgId,
-          imageTags: newTags,
+          fileId: fId,
+          fileTags: newTags,
         };
         usersDatabase.update(
           { _id: user._id },
-          { $push: { imagesInfo: newImg } }
+          { $push: { filesInfo: newImg } }
         );
       }
     }
   );
 }
 
-async function handleNewPhoto(ctx) {
-  const fileId = ctx.update.message.photo[0].file_id;
+async function handleNewFile(ctx) {
+  let fileId;
+  if (ctx.update.message.photo) {
+    fileId = ctx.update.message.photo[0].file_id;
+  } else if (ctx.update.message.document) {
+    fileId = ctx.update.message.document.file_id;
+  }
 
-  // save newly sent image to untagged images
+  console.log('==> ', fileId);
+
+  // save newly sent file to untagged files
   const senderId = ctx.update.message.from.id.toString();
   usersDatabase.update(
     { _id: generateUserId(senderId) },
-    { $push: { untaggedImages: fileId } },
+    { $push: { untaggedFiles: fileId } },
     {},
     (err) => {
       if (err)
@@ -124,6 +134,6 @@ function generateUserId(teleId) {
   return bcrypt.hashSync(teleId, process.env.SALT);
 }
 
-const getImageURL = require(path.join(__dirname, 'routes', 'tags')).getImageURL;
+const getFileURL = require(path.join(__dirname, 'routes', 'tags')).getFileURL;
 
 module.exports = bot;

@@ -18,9 +18,9 @@ async function loadTags() {
     tags += '-' + tag.id;
   }
   if (tagsSelected.length == 0) {
-    // remove all the images
-    while (document.getElementById('tagged-images').childElementCount > 0)
-      document.getElementById('tagged-images').firstChild.remove();
+    // remove all the files
+    while (document.getElementById('tagged-files').childElementCount > 0)
+      document.getElementById('tagged-files').firstChild.remove();
     return;
   }
 
@@ -31,15 +31,15 @@ async function loadTags() {
   showTaggedImages(data);
 }
 
-function showTaggedImages(imgData) {
+function showTaggedImages(fileData) {
   const template = `
-    {{#each imgData.images}}
-    <div class="col-sm-6 col-md-4 images-div mt-5">
+    {{#each fileData.files}}
+    <div class="col-sm-6 col-md-4 files-div mt-5">
 
     <img id="{{this.id}}" src="{{this.url}}" alt="" class="img-thumbnail">
 
     <div class="mt-2">
-    {{#each this.imageTags}}
+    {{#each this.fileTags}}
       <div class="tag">#{{this}} </div>
     {{/each}}
     </div>
@@ -48,22 +48,22 @@ function showTaggedImages(imgData) {
     {{/each}}
   `;
   var compiledTemplate = Handlebars.compile(template);
-  var generatedHTML = compiledTemplate({ imgData });
-  document.getElementById('tagged-images').innerHTML = generatedHTML;
+  var generatedHTML = compiledTemplate({ fileData });
+  document.getElementById('tagged-files').innerHTML = generatedHTML;
 
   addEventToImages();
 }
 
 function addEventToImages() {
-  const images = document.querySelectorAll('.images-div img');
-  for (let i of images) i.addEventListener('click', showModal);
-  console.log(images);
+  const files = document.querySelectorAll('.files-div img');
+  for (let i of files) i.addEventListener('click', showModal);
+  console.log(files);
 }
 
 function showModal() {
   const src = this.src;
-  document.getElementById('modal-image').src = src;
-  document.getElementById('modal-image-download-link').href = src;
+  document.getElementById('modal-file').src = src;
+  document.getElementById('modal-file-download-link').href = src;
 
   // show modal
   document.getElementById('overlay').classList.remove('hide');
