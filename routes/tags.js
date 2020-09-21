@@ -48,7 +48,7 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
           if (filesAdded.includes(fId)) continue;
           else {
             filesAdded.push(fId); // save this file as added
-            files.push(await findFile(user.filesInfo, fId, user._id));
+            files.push(await findFile(user.filesInfo, fId));
           }
         }
       }
@@ -56,38 +56,12 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
     });
 
     // gets the file saved in user.filesInfo and retrieves the id(the index of file in array) and file tags
-    async function findFile(filesInfo, fId, userId) {
+    async function findFile(filesInfo, fId) {
       // ** the index of file in filesInfo array is the id for that file that gets sent to the client
       for (let i = 0; i < filesInfo.length; i++) {
         const f = filesInfo[i];
         if (f.fileId == fId) {
-          // it is guaranteed by Telegram that the link will be valid for at least 1 hour
-
-          if (f.urlUpdateTime + 60 * 60 * 1000 <= Date.now()) {
-            // fetch new url
-            const url = await getFileURL(fId);
-
-            // updating 'urlUpdateTime'
-
-            filesInfo[i].urlUpdateTime = Date.now();
-
-            usersDatabase.update(
-              { _id: userId },
-              { $set: { filesInfo: filesInfo } },
-              {},
-              (err) => {
-                if (err) {
-                  console.log('Error in updating urlUpdateTime', err);
-                }
-              }
-            );
-
-            return { url: url, fileTags: f.fileTags, id: i };
-          } else {
-            const url = f.url;
-
-            return { url: url, fileTags: f.fileTags, id: i };
-          }
+          return { url: f.url, fileTags: f.fileTags, id: i };
         }
       }
       console.log('No file found');
@@ -112,14 +86,4 @@ function isVerified(req, res, next) {
   }
 }
 
-async function getFileURL(fileId) {
-  const res = await fetch(
-    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
-  );
-
-  const res2 = await res.json();
-  const filePath = res2.result.file_path;
-  return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
-}
-
-module.exports = { router, getFileURL };
+module.exports = { router };

@@ -1,10 +1,16 @@
 const { Telegraf } = require('telegraf');
 const path = require('path');
+
+const fetch = require('node-fetch');
+
+const fs = require('fs');
+const request = require('request');
+
 require('dotenv').config();
 
 const bcrypt = require('bcrypt');
 
-const { usersDatabase } = require('./app.js');
+const { usersDatabase, hostname } = require('./app.js');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -63,9 +69,11 @@ function tagFiles(ctx) {
     { _id: generateUserId(senderId) },
     async (err, user) => {
       if (err) return console.log('Error in tagFile()\n', err);
+
       let tagTable = user.tagTable;
       let existingTags = Object.keys(tagTable);
       let untaggedFiles = user.untaggedFiles;
+
       for (let tag of newTags) {
         // create new tag is it doesnt exist
         if (!existingTags.includes(tag)) {
@@ -90,8 +98,8 @@ function tagFiles(ctx) {
 
       for (let fId of untaggedFiles) {
         const newImg = {
-          url: await getFileURL(fId),
-          urlUpdateTime: Date.now(),
+          url: getServerDownloadURL(fId),
+
           fileId: fId,
           fileTags: newTags,
         };
@@ -112,7 +120,8 @@ async function handleNewFile(ctx) {
     fileId = ctx.update.message.document.file_id;
   }
 
-  console.log('==> ', fileId);
+  // download file to database
+  downloadFile(fileId);
 
   // save newly sent file to untagged files
   const senderId = ctx.update.message.from.id.toString();
@@ -134,6 +143,38 @@ function generateUserId(teleId) {
   return bcrypt.hashSync(teleId, process.env.SALT);
 }
 
-const getFileURL = require(path.join(__dirname, 'routes', 'tags')).getFileURL;
+async function downloadFile(fileId) {
+  const res = await fetch(
+    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${fileId}`
+  );
+
+  const res2 = await res.json();
+  const filePath = res2.result.file_path;
+  const downloadURL = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${filePath}`;
+
+  const savingDir = path.resolve(__dirname, 'database', 'files');
+
+  const savePath = path.join(savePath, `${fileId}.jpg`);
+
+  if (!fs.existsSync(savingDir)) {
+    fs.mkdirSync(savingDir);
+  }
+
+  download(downloadURL, savePath, () => {
+    console.log('Downloaded');
+  });
+}
+
+function getServerDownloadURL(fileId) {
+  return hostname + `download/${fileId}`;
+}
+
+// handling downloading file
+
+const download = (url, path, callback) => {
+  request.head(url, (err, res, body) => {
+    request(url).pipe(fs.createWriteStream(path)).on('close', callback);
+  });
+};
 
 module.exports = bot;

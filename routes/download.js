@@ -13,8 +13,8 @@ router.get(
       __dirname,
       '..',
       'database',
-      'images',
-      'basicImage.jpg'
+      'files',
+      `${req.params.fileId}.jpg`
     );
     res.sendFile(filePath);
   }
@@ -26,7 +26,7 @@ function isAuthenticated(req, res, next) {
     res
       .status(accessDeniedCode)
       .sendFile(
-        path.resolve(__dirname, '..', 'database', 'images', 'notAutherized.jpg')
+        path.resolve(__dirname, '..', 'database', 'files', 'notAutherized.jpg')
       );
   }
 }
@@ -38,14 +38,12 @@ function isVerified(req, res, next) {
     res
       .status(accessDeniedCode)
       .sendFile(
-        path.resolve(__dirname, '..', 'database', 'images', 'notVerified.jpg')
+        path.resolve(__dirname, '..', 'database', 'files', 'notVerified.jpg')
       );
   }
 }
 
 function HasAccessToFile(req, res, next) {
-  console.log(req.get('host'));
-
   const requestedFile = req.params.fileId;
 
   const filtered = req.user.filesInfo.filter(
@@ -58,23 +56,15 @@ function HasAccessToFile(req, res, next) {
     res
       .status(accessDeniedCode)
       .sendFile(
-        path.resolve(__dirname, '..', 'database', 'images', 'noFileAccess.jpg')
+        path.resolve(__dirname, '..', 'database', 'files', 'noFileAccess.jpg')
       );
     next();
   } else {
     // access granted
 
-    res
-      .status(accessDeniedCode)
-      .sendFile(
-        path.resolve(
-          __dirname,
-          '..',
-          'database',
-          'images',
-          `${requestedFile}.jpg`
-        )
-      );
+    res.sendFile(
+      path.resolve(__dirname, '..', 'database', 'files', `${requestedFile}.jpg`)
+    );
     next();
   }
 }
