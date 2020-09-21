@@ -24,7 +24,7 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
 });
 
 // get the url of files
-// we consider that the received requests will seperate the tags with '-', like: -nature-book-school or nature-book-school
+// we consider that the received requests will separate the tags with '-', like: -nature-book-school or nature-book-school
 router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
   const requestedTags = req.params.fileTags.split('-');
   for (let i = 0; i < requestedTags.length; i++)
@@ -42,7 +42,7 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
       const filesAdded = [];
 
       for (let tag of tags) {
-        const fArr = user.tagTable[tag]; // this is the array of fileIds for files with specefic tag
+        const fArr = user.tagTable[tag]; // this is the array of fileIds for files with specific tag
 
         for (let fId of fArr) {
           if (filesAdded.includes(fId)) continue;
@@ -63,13 +63,13 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
         if (f.fileId == fId) {
           // it is guaranteed by Telegram that the link will be valid for at least 1 hour
 
-          if (f.urlUpdatTime + 60 * 60 * 1000 <= Date.now()) {
+          if (f.urlUpdateTime + 60 * 60 * 1000 <= Date.now()) {
             // fetch new url
             const url = await getFileURL(fId);
 
-            // updating 'urlUpdatTime'
+            // updating 'urlUpdateTime'
 
-            filesInfo[i].urlUpdatTime = Date.now();
+            filesInfo[i].urlUpdateTime = Date.now();
 
             usersDatabase.update(
               { _id: userId },

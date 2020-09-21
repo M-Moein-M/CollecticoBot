@@ -25,7 +25,7 @@ bot.command('start', (ctx) => {
     _id: userId,
   });
 
-  const replyTxt = `Glad we've you here. Just to get you started, here's your 6 character verification code to enter in the site to sync your Telegram accout with the account you registered: ${verificationCode}`;
+  const replyTxt = `Glad we've you here. Just to get you started, here's your 6 character verification code to enter in the site to sync your Telegram account with the account you registered: ${verificationCode}`;
   ctx.reply(replyTxt);
 });
 
@@ -91,7 +91,7 @@ function tagFiles(ctx) {
       for (let fId of untaggedFiles) {
         const newImg = {
           url: await getFileURL(fId),
-          urlUpdatTime: Date.now(),
+          urlUpdateTime: Date.now(),
           fileId: fId,
           fileTags: newTags,
         };

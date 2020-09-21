@@ -16,7 +16,7 @@ const usersDatabase = new Datastore({
   autoload: true,
 });
 
-console.log('Databasae loaded');
+console.log('Database loaded');
 
 // express session
 const flash = require('express-flash');
@@ -62,6 +62,7 @@ app.use('/', require(path.join(__dirname, 'routes', 'index.js')));
 app.use('/signup', require(path.join(__dirname, 'routes', 'signup')));
 app.use('/signin', require(path.join(__dirname, 'routes', 'signin')));
 app.use('/tags', require(path.join(__dirname, 'routes', 'tags')).router);
+app.use('/download', require(path.join(__dirname, 'routes', 'download')));
 
 app.get('/logout', (req, res) => {
   req.logout();
