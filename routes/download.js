@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const path = require('path');
+const fs = require('fs');
 
 const accessDeniedCode = 403;
 
@@ -16,7 +17,15 @@ router.get(
       'files',
       `${req.params.fileId}.jpg`
     );
-    res.sendFile(filePath);
+
+    const s = fs.createReadStream(filePath);
+    s.on('open', () => {
+      res.set('Content-Type', 'image/jpeg');
+      s.pipe(res);
+    });
+    s.on('error', () => {
+      console.log('Error at streaming files');
+    });
   }
 );
 
@@ -26,7 +35,7 @@ function isAuthenticated(req, res, next) {
     res
       .status(accessDeniedCode)
       .sendFile(
-        path.resolve(__dirname, '..', 'database', 'files', 'notAutherized.jpg')
+        path.resolve(__dirname, '..', 'database', 'files', 'notAuthorized.jpg')
       );
   }
 }
@@ -58,13 +67,10 @@ function HasAccessToFile(req, res, next) {
       .sendFile(
         path.resolve(__dirname, '..', 'database', 'files', 'noFileAccess.jpg')
       );
-    next();
+
+    return;
   } else {
     // access granted
-
-    res.sendFile(
-      path.resolve(__dirname, '..', 'database', 'files', `${requestedFile}.jpg`)
-    );
     next();
   }
 }
