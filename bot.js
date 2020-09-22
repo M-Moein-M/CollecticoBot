@@ -56,6 +56,11 @@ bot.launch();
 function tagFiles(ctx) {
   let msg = ctx.update.message.text;
 
+  if (msg.includes('-')) {
+    ctx.reply('Remove dashes in your tags pretty please.');
+    return;
+  }
+
   // for some reason replaceAll threw error
   while (msg.includes('#')) msg = msg.replace('#', '');
   while (msg.includes('\n')) msg = msg.replace('\n', ' ');
@@ -74,8 +79,13 @@ function tagFiles(ctx) {
       let existingTags = Object.keys(tagTable);
       let untaggedFiles = user.untaggedFiles;
 
+      if (untaggedFiles.length == 0) {
+        ctx.reply("There's no file to tag");
+        return;
+      }
+
       for (let tag of newTags) {
-        // create new tag is it doesnt exist
+        // create new tag is it doesn't exist
         if (!existingTags.includes(tag)) {
           tagTable[tag] = [];
         }
@@ -154,11 +164,11 @@ async function downloadFile(fileId) {
 
   const savingDir = path.resolve(__dirname, 'database', 'files');
 
-  const savePath = path.join(savePath, `${fileId}.jpg`);
-
   if (!fs.existsSync(savingDir)) {
     fs.mkdirSync(savingDir);
   }
+
+  const savePath = path.join(savingDir, `${fileId}.jpg`);
 
   download(downloadURL, savePath, () => {
     console.log('Downloaded');

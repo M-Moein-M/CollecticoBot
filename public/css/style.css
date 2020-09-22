@@ -3,7 +3,7 @@
 
   --secondary-color: #6fb98f;
 
-  --overlay-bg: rgba(0, 68, 69, 0.8);
+  --overlay-bg: rgba(1, 48, 49, 0.8);
 
   --third-color: #004445;
 
@@ -24,7 +24,10 @@ a:hover {
 }
 
 body {
-  background-color: var(--main-color);
+  /* background-color: var(--main-color); */
+  background-image: url('../assets/bg-image.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .page-title {
@@ -117,7 +120,7 @@ body {
 .float-left {
   float: left;
 }
-.float-rigt {
+.float-right {
   float: right;
 }
 
