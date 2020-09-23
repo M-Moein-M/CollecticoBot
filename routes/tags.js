@@ -4,6 +4,9 @@ const fetch = require('node-fetch');
 
 const { usersDatabase, passport } = require(path.resolve('app.js'));
 
+// middle ware to check if request has access to some specific file or not(for example can this request delete file or change tags)
+const hasAccessToFile = require('./download').hasAccessToFile;
+
 router.get('/', isAuthenticated, isVerified, (req, res) => {
   usersDatabase.findOne({ _id: req.user._id }, (err, user) => {
     if (err) {
@@ -69,6 +72,127 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
     }
   }
 });
+
+router.delete(
+  '/:fileId',
+  isAuthenticated,
+  isVerified,
+  hasAccessToFile,
+  (req, res) => {
+    console.log('delete req');
+
+    const fileId = req.params.fileId;
+
+    removeFileFromTagTable(fileId, req.user._id, res);
+
+    // if there's no error in removeFileFromTagTable
+    if (!res.headersSent) removeFileFromFilesInfo(fileId, req.user._id, res);
+  }
+);
+
+// will return 'error' if fileId wasn't found and res object is not provided
+// will return 'ok' if file was removed form filesInfo successfully
+function removeFileFromFilesInfo(fileId, userId, res) {
+  usersDatabase.findOne({ _id: userId }, (err, user) => {
+    if (err) {
+      console.log(
+        'Error in findOne removeFileFromFilesInfo request tags.js\n',
+        err
+      );
+      if (!res) {
+        res.status(404).json({ msg: 'Error finding user' });
+        return;
+      } else {
+        return 'error';
+      }
+    }
+
+    const filesInfo = user.filesInfo;
+    for (let i = 0; i < filesInfo.length; i++) {
+      if (filesInfo[i].fileId == fileId) {
+        filesInfo.splice(i, 1);
+        break;
+      }
+    }
+
+    usersDatabase.update(
+      { _id: userId },
+      { $set: { filesInfo: filesInfo } },
+      {},
+      (err) => {
+        if (err) {
+          console.log(
+            'Error updating filesInfo in removeFileFromFilesInfo',
+            err
+          );
+        }
+      }
+    );
+  });
+}
+
+// will return 'error' if fileId wasn't found and res object is not provided
+// will return 'ok' if file was removed form tagTable successfully
+function removeFileFromTagTable(fileId, userId, res = null) {
+  usersDatabase.findOne({ _id: userId }, (err, user) => {
+    if (err) {
+      console.log(
+        'Error in findOne removeFileFromTagTable request tags.js\n',
+        err
+      );
+      if (!res) {
+        res.status(404).json({ msg: 'Error finding user' });
+        return;
+      } else {
+        return 'error';
+      }
+    }
+    let file = user.filesInfo.filter((f) => f.fileId == fileId);
+    if (file.length == 0) {
+      // no such file found
+      if (!res) {
+        res.status(404).json({ msg: 'File not found' });
+        return;
+      } else {
+        return 'error';
+      }
+    }
+
+    const allTags = file[0].fileTags;
+    const userTagTable = user.tagTable;
+    for (let i = 0; i < allTags.length; i++) {
+      const tag = allTags[i];
+
+      // this index needs to be deleted
+      const index = userTagTable[tag].indexOf(fileId);
+      userTagTable[tag].splice(index, 1); // remove the fileId from this specific tag
+
+      // if this is a tag with no fileId
+      if (userTagTable[tag].length == 0) {
+        delete userTagTable[tag];
+      }
+    }
+
+    usersDatabase.update(
+      { _id: userId },
+      { $set: { tagTable: userTagTable } },
+      {},
+      (err) => {
+        if (err) {
+          console.log('Error updating tagTable in removeFileFromTagTable', err);
+        }
+      }
+    );
+  });
+
+  if (!res) {
+    res.status(200).json({ msg: 'Error finding user' });
+    return;
+  } else {
+    return 'error';
+  }
+  return 'ok';
+}
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) next();

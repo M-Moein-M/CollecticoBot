@@ -8,7 +8,7 @@ router.get(
   '/:fileId',
   isAuthenticated,
   isVerified,
-  HasAccessToFile,
+  hasAccessToFile,
   (req, res) => {
     const filePath = path.resolve(
       __dirname,
@@ -52,7 +52,9 @@ function isVerified(req, res, next) {
   }
 }
 
-function HasAccessToFile(req, res, next) {
+// middle ware to check if request has access to some specific file or not(for example can this request delete file or change tags)
+// fileId will be received with url parameters
+function hasAccessToFile(req, res, next) {
   const requestedFile = req.params.fileId;
 
   const filtered = req.user.filesInfo.filter(
@@ -75,4 +77,4 @@ function HasAccessToFile(req, res, next) {
   }
 }
 
-module.exports = router;
+module.exports = { router, hasAccessToFile };
