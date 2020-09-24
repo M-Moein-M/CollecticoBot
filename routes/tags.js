@@ -26,7 +26,6 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
   });
 });
 
-// get the url of files
 // we consider that the received requests will separate the tags with '-', like: -nature-book-school or nature-book-school
 router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
   const requestedTags = req.params.fileTags.split('-');
@@ -64,7 +63,7 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
       for (let i = 0; i < filesInfo.length; i++) {
         const f = filesInfo[i];
         if (f.fileId == fId) {
-          return { url: f.url, fileTags: f.fileTags, id: i };
+          return { url: f.url, fileTags: f.fileTags, id: f.fileId };
         }
       }
       console.log('No file found');
@@ -73,15 +72,16 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
   }
 });
 
-router.delete(
-  '/:fileId',
+router.post(
+  '/delete/:fileId',
   isAuthenticated,
   isVerified,
   hasAccessToFile,
   (req, res) => {
-    console.log('delete req');
-
     const fileId = req.params.fileId;
+
+    console.log('delete request');
+    console.log(`file ID:${fileId}`);
 
     removeFileFromTagTable(fileId, req.user._id, res);
 

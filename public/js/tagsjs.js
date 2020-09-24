@@ -70,12 +70,18 @@ function showModal() {
   document.getElementById('main-ui').classList.add('blurred');
 }
 
-// closing modal
+// closing modal on clicking outside of modal
 document.getElementById('overlay').addEventListener('click', (e) => {
-  document.getElementById('overlay').classList.add('hide');
-  document.getElementById('main-ui').classList.remove('blurred');
+  if (e.target.id == 'overlay' || e.target.id == 'modal-close-link') {
+    closeOverlay();
+  }
 });
 
 document.getElementById('modal-close-link').addEventListener('click', (e) => {
   e.preventDefault();
 });
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.add('hide');
+  document.getElementById('main-ui').classList.remove('blurred');
+}
