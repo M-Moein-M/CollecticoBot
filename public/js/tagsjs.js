@@ -64,6 +64,7 @@ function showModal() {
   const src = this.src;
   document.getElementById('modal-file').src = src;
   document.getElementById('modal-file-download-link').href = src;
+  document.getElementById('delete-confirmation-fileId').value = this.id;
 
   // show modal
   document.getElementById('overlay').classList.remove('hide');

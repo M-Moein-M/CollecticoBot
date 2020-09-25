@@ -73,37 +73,41 @@ router.get('/:fileTags', isAuthenticated, isVerified, (req, res) => {
 });
 
 router.post(
-  '/delete/:fileId',
+  '/delete/',
   isAuthenticated,
   isVerified,
   hasAccessToFile,
   (req, res) => {
-    const fileId = req.params.fileId;
+    const fileId = req.body.fileId;
 
     console.log('delete request');
-    console.log(`file ID:${fileId}`);
 
-    removeFileFromTagTable(fileId, req.user._id, res);
+    const result = removeFileFromTagTable(fileId, req.user._id);
 
     // if there's no error in removeFileFromTagTable
-    if (!res.headersSent) removeFileFromFilesInfo(fileId, req.user._id, res);
+    if (result != 'error') {
+      const result = removeFileFromFilesInfo(fileId, req.user._id);
+      if (result != 'error') res.redirect('/tags');
+    }
   }
 );
 
 // will return 'error' if fileId wasn't found and res object is not provided
-// will return 'ok' if file was removed form filesInfo successfully
-function removeFileFromFilesInfo(fileId, userId, res) {
+//(this function might return undefined since this function uses callback. This will cause to return undefined when it's processing)
+function removeFileFromFilesInfo(fileId, userId, res = null) {
   usersDatabase.findOne({ _id: userId }, (err, user) => {
     if (err) {
       console.log(
         'Error in findOne removeFileFromFilesInfo request tags.js\n',
         err
       );
-      if (!res) {
+      if (res != null) {
         res.status(404).json({ msg: 'Error finding user' });
+        console.log('Error finding user');
         return;
       } else {
-        return 'error';
+        console.log('Error finding user');
+        return;
       }
     }
 
@@ -128,6 +132,10 @@ function removeFileFromFilesInfo(fileId, userId, res) {
         }
       }
     );
+    if (res != null) {
+      res.status(200);
+      return;
+    }
   });
 }
 
@@ -140,20 +148,22 @@ function removeFileFromTagTable(fileId, userId, res = null) {
         'Error in findOne removeFileFromTagTable request tags.js\n',
         err
       );
-      if (!res) {
+      if (res != null) {
         res.status(404).json({ msg: 'Error finding user' });
-        return;
+        return 'error';
       } else {
+        console.log('Error finding user');
         return 'error';
       }
     }
     let file = user.filesInfo.filter((f) => f.fileId == fileId);
     if (file.length == 0) {
       // no such file found
-      if (!res) {
+      if (res != null) {
         res.status(404).json({ msg: 'File not found' });
         return;
       } else {
+        console.log('File not found');
         return 'error';
       }
     }
@@ -185,13 +195,12 @@ function removeFileFromTagTable(fileId, userId, res = null) {
     );
   });
 
-  if (!res) {
+  if (res != null) {
     res.status(200).json({ msg: 'Error finding user' });
     return;
   } else {
-    return 'error';
+    return 'ok';
   }
-  return 'ok';
 }
 
 function isAuthenticated(req, res, next) {

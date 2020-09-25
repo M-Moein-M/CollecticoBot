@@ -55,7 +55,7 @@ function isVerified(req, res, next) {
 // middle ware to check if request has access to some specific file or not(for example can this request delete file or change tags)
 // fileId will be received with url parameters
 function hasAccessToFile(req, res, next) {
-  const requestedFile = req.params.fileId;
+  const requestedFile = req.params.fileId || req.body.fileId;
 
   const filtered = req.user.filesInfo.filter(
     (file) => file.fileId == requestedFile

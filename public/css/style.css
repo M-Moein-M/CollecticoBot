@@ -291,3 +291,7 @@ body {
   border: none;
   outline: none;
 }
+
+.modal-content {
+  background-color: var(--third-color);
+}
