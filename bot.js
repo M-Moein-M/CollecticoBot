@@ -24,6 +24,7 @@ bot.command('start', (ctx) => {
     password: null,
     telegramId: ctx.from.username.toLowerCase(),
     filesInfo: [], // stores information about files. Like url, fileId, fileTags
+    deletedFilesInfo: [],
     untaggedFiles: [],
     tagTable: {},
     isVerified: false,

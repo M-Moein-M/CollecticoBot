@@ -111,9 +111,12 @@ function removeFileFromFilesInfo(fileId, userId, res = null) {
       }
     }
 
+    let deletedFile;
     const filesInfo = user.filesInfo;
     for (let i = 0; i < filesInfo.length; i++) {
       if (filesInfo[i].fileId == fileId) {
+        deletedFile = filesInfo[i];
+        deletedFile.timeStamp = Date.now();
         filesInfo.splice(i, 1);
         break;
       }
@@ -121,7 +124,10 @@ function removeFileFromFilesInfo(fileId, userId, res = null) {
 
     usersDatabase.update(
       { _id: userId },
-      { $set: { filesInfo: filesInfo } },
+      {
+        $set: { filesInfo: filesInfo },
+        $push: { deletedFilesInfo: deletedFile },
+      },
       {},
       (err) => {
         if (err) {
