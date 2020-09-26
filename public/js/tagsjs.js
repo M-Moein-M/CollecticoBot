@@ -27,7 +27,7 @@ async function loadTags() {
   const fetchURL = `/tags/${tags}`;
   const res = await fetch(fetchURL);
   const data = await res.json();
-  console.log(data);
+
   showTaggedImages(data);
 }
 
@@ -57,7 +57,6 @@ function showTaggedImages(fileData) {
 function addEventToImages() {
   const files = document.querySelectorAll('.files-div img');
   for (let i of files) i.addEventListener('click', showModal);
-  console.log(files);
 }
 
 function showModal() {
@@ -65,6 +64,18 @@ function showModal() {
   document.getElementById('modal-file').src = src;
   document.getElementById('modal-file-download-link').href = src;
   document.getElementById('delete-confirmation-fileId').value = this.id;
+  document.getElementById('edit-fileId').value = this.id;
+
+  const tagElements = document
+    .getElementById(this.id)
+    .parentElement.querySelectorAll('.tag');
+
+  let editValue = '';
+  for (let i = 0; i < tagElements.length; i++) {
+    editValue += tagElements[i].innerHTML;
+  }
+
+  document.getElementById('edit-tags-input').value = editValue;
 
   // show modal
   document.getElementById('overlay').classList.remove('hide');

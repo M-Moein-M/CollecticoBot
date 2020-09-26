@@ -27,15 +27,22 @@
     </div>
 
 
-    <div class="row justify-content-center">
-
-      <button id="modal-delete-file" data-toggle="modal" data-target="#delete-confirmation" class="danger-button">Delete
-        file<img src="./assets/delete-icon.svg" alt="">
-      </button>
+    <div class="row justify-content-center m-1">
+      <div>
+        <button id="modal-edit-file" data-toggle="modal" data-target="#edit-form" class="normal-button">Edit tags <img
+            class="icon" src="./assets/edit-icon.svg" alt="edit-icon">
+        </button>
+      </div>
+    </div>
+    <div class="row justify-content-center m-1">
+      <div>
+        <button id="modal-delete-file" data-toggle="modal" data-target="#delete-confirmation"
+          class="danger-button">Delete
+          file<img class="icon" src="./assets/delete-icon.svg" alt="delete-icon">
+        </button>
+      </div>
 
     </div>
-
-
   </div>
 
 </div>
@@ -62,6 +69,40 @@
         </form>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="edit-form" role="dialog" aria-labelledby="edit-title" aria-hidden="true">
+  <div class="modal-dialog" role="alert">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="edit-title">Edit</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>Change tags below as you desire</p>
+
+        <form action="/tags/edit" method="POST">
+
+          <input type="text" class="hide" id="edit-fileId" name="fileId">
+
+          <div class="form-group">
+            <input type="text" id="edit-tags-input" class="form-control" name="editedTags" spellcheck="false"
+              autocomplete="off">
+          </div>
+          <button type="submit" class="normal-button">Save changes</button>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="normal-button" data-dismiss="modal">Cancel</button>
+      </div>
+
     </div>
   </div>
 </div>

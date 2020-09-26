@@ -295,3 +295,12 @@ body {
 .modal-content {
   background-color: var(--third-color);
 }
+
+#modal-delete-file,
+#modal-edit-file {
+  display: block;
+}
+
+.icon {
+  vertical-align: middle;
+}
