@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const path = require('path');
 const fetch = require('node-fetch');
+const tagUntaggedFiles = require('./../bot').tagUntaggedFiles;
 
 const { usersDatabase, passport } = require(path.resolve('app.js'));
 
@@ -87,10 +88,63 @@ router.post(
     // if there's no error in removeFileFromTagTable
     if (result != 'error') {
       const result = removeFileFromFilesInfo(fileId, req.user._id);
-      if (result != 'error') res.redirect('/tags');
+      if (result == 'error') console.log('error in tags/delete');
     }
+    res.redirect('/tags');
   }
 );
+
+router.post(
+  '/edit',
+  isAuthenticated,
+  isVerified,
+  hasAccessToFile,
+  (req, res) => {
+    const fileId = req.body.fileId;
+    const editedTags = req.body.editedTags;
+
+    console.log('edit request');
+    console.log(fileId);
+    console.log(editedTags);
+
+    const result = saveNewTags(fileId, editedTags, req.user._id);
+
+    // return to tags route
+    res.redirect('/tags');
+  }
+);
+
+// editing tags
+function saveNewTags(fileId, editedTags, userId) {
+  const result = removeFileFromTagTable(fileId, userId);
+
+  if (result == 'error') {
+    console.log('error in saveNewTags in removeFileFromTagTable');
+    return 'error';
+  }
+
+  // remove previous information about file so that new information can be inserted
+  removeFileFromFilesInfo(fileId, userId);
+
+  // add fileId to untaggedFiles so that we tag them with tagUntaggedFiles function exported from bot.js
+  usersDatabase.update(
+    { _id: userId },
+    { $push: { untaggedFiles: fileId } },
+    {},
+    (err) => {
+      if (err) {
+        console.log('error in saveNewTags', err);
+        return;
+      }
+      tagUntaggedFiles(editedTags, userId);
+    }
+  );
+
+  if (result == 'error') {
+    console.log('error in saveNewTags');
+    return 'error';
+  }
+}
 
 // will return 'error' if fileId wasn't found and res object is not provided
 //(this function might return undefined since this function uses callback. This will cause to return undefined when it's processing)

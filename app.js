@@ -73,7 +73,7 @@ app.get('/logout', (req, res) => {
 });
 
 // BOT
-const bot = require('./bot');
+const bot = require('./bot').bot;
 
 // verify the account
 app.use(

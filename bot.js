@@ -41,7 +41,16 @@ bot.on('message', async (ctx) => {
   if (Boolean(ctx.update.message.text)) {
     // tagging the untagged files
     console.log('Tags received');
-    tagFiles(ctx);
+
+    const userId = generateUserId(ctx.update.message.from.id.toString());
+    const msg = ctx.update.message.text;
+
+    if (msg.includes('-')) {
+      ctx.reply('Remove dashes in your tags pretty please.');
+      return;
+    }
+
+    tagUntaggedFiles(msg, userId);
   } else if (Boolean(ctx.update.message.photo)) {
     // message is a photo
     console.log('Adding photo');
@@ -54,14 +63,8 @@ bot.on('message', async (ctx) => {
 
 bot.launch();
 
-function tagFiles(ctx) {
-  let msg = ctx.update.message.text;
-
-  if (msg.includes('-')) {
-    ctx.reply('Remove dashes in your tags pretty please.');
-    return;
-  }
-
+// msg is the tags that user sent
+function tagUntaggedFiles(msg, userId) {
   // for some reason replaceAll threw error
   while (msg.includes('#')) msg = msg.replace('#', '');
   while (msg.includes('\n')) msg = msg.replace('\n', ' ');
@@ -70,57 +73,51 @@ function tagFiles(ctx) {
   console.log(newTags);
 
   // tagging user's untagged files
-  const senderId = ctx.update.message.from.id.toString();
-  usersDatabase.findOne(
-    { _id: generateUserId(senderId) },
-    async (err, user) => {
-      if (err) return console.log('Error in tagFile()\n', err);
 
-      let tagTable = user.tagTable;
-      let existingTags = Object.keys(tagTable);
-      let untaggedFiles = user.untaggedFiles;
+  usersDatabase.findOne({ _id: userId }, async (err, user) => {
+    if (err) return console.log('Error in tagFile()\n', err);
 
-      if (untaggedFiles.length == 0) {
-        ctx.reply("There's no file to tag");
-        return;
+    let tagTable = user.tagTable;
+    let existingTags = Object.keys(tagTable);
+    let untaggedFiles = user.untaggedFiles;
+
+    if (untaggedFiles.length == 0) {
+      ctx.reply("There's no file to tag");
+      return;
+    }
+
+    for (let tag of newTags) {
+      // create new tag is it doesn't exist
+      if (!existingTags.includes(tag)) {
+        tagTable[tag] = [];
       }
 
-      for (let tag of newTags) {
-        // create new tag is it doesn't exist
-        if (!existingTags.includes(tag)) {
-          tagTable[tag] = [];
-        }
-
-        for (let f of untaggedFiles) {
-          tagTable[tag].push(f);
-        }
-      }
-
-      usersDatabase.update(
-        { _id: user._id },
-        { $set: { untaggedFiles: [], tagTable: tagTable } },
-        {},
-        (err) => {
-          if (err) {
-            console.log('Error in database update TagFile()', err);
-          }
-        }
-      );
-
-      for (let fId of untaggedFiles) {
-        const newImg = {
-          url: getServerDownloadURL(fId),
-
-          fileId: fId,
-          fileTags: newTags,
-        };
-        usersDatabase.update(
-          { _id: user._id },
-          { $push: { filesInfo: newImg } }
-        );
+      for (let f of untaggedFiles) {
+        tagTable[tag].push(f);
       }
     }
-  );
+
+    usersDatabase.update(
+      { _id: user._id },
+      { $set: { untaggedFiles: [], tagTable: tagTable } },
+      {},
+      (err) => {
+        if (err) {
+          console.log('Error in database update TagFile()', err);
+        }
+      }
+    );
+
+    for (let fId of untaggedFiles) {
+      const newImg = {
+        url: getServerDownloadURL(fId),
+
+        fileId: fId,
+        fileTags: newTags,
+      };
+      usersDatabase.update({ _id: user._id }, { $push: { filesInfo: newImg } });
+    }
+  });
 }
 
 async function handleNewFile(ctx) {
@@ -188,4 +185,4 @@ const download = (url, path, callback) => {
   });
 };
 
-module.exports = bot;
+module.exports = { bot, tagUntaggedFiles };
