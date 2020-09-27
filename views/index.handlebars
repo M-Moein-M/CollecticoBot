@@ -1,12 +1,73 @@
 <div class="container">
   <div class="row justify-content-center">
-    <h2 class="mt-5">About</h2>
+    <h1 class="mt-5">Collectico Telegram BOT</h1>
   </div>
   <div class="row justify-content-center">
-    <p id="about-paragraph">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eveniet aut rem ut nostrum,
-      totam labore assumenda
-      rerum quo! Saepe, recusandae debitis. Cum doloremque, odio nobis dolorum voluptatibus molestias error aspernatur.
-    </p>
+    <p class="homepage-paragraph">Collectico is a Telegram bot for managing and tagging images files. The photos you
+      take during the day just to
+      remember something can be tagged and later be available to access them using a website. Instead of forgetting the
+      photos or misplace them, this bot will keep track of them as you tag them. Later on you can view the images with
+      specific tags only by opening a tab in browser.</p>
+
+  </div>
+
+  <div class="row justify-content-center m-5">
+    <h2>How it use it</h2>
+  </div>
+
+  <div class="row justify-content-around">
+    <div class="col-md-5">
+      <h3>Registration</h3>
+
+      <p class="homepage-paragraph">
+        There's some steps for registration.
+      </p>
+
+      <ol>
+        <li>Send '/start' to Collectico in Telegram. It will give you a 6 digit code</li>
+        <li>Create account on website</li>
+        <li>Sign in to your account</li>
+        <li>Go to verification on site</li>
+        <li>Enter your 6 digit code and your Telegram ID</li>
+      </ol>
+
+
+      <p class="homepage-paragraph">
+        Now your Telegram account is synced with the account you registered with.<br>
+        Everything is ready and Collectico is at your service.
+      </p>
+    </div>
+
+    <div class="col-md-5">
+      <h3>Main usage</h3>
+
+      <p class="homepage-paragraph">
+        Follow the steps below when you want to add new images.
+      </p>
+      <ol>
+        <li>send your images one by one. You can send them as photo or as file</li>
+        <li>After you sent all your files it's time to tag them. Send your tags separated with space or '#' at the
+          beginning of new tag.</li>
+
+      </ol>
+      <p class="homepage-paragraph">
+        Some examples of valid tags:
+      </p>
+
+      <ul>
+        <li>nature birds tall_tree tallTree</li>
+        <li>#nature #birds #tall_tree #tallTree</li>
+        <li>#nature#birds#lake#tall_tree #tallTree</li>
+      </ul>
+
+      <p class="homepage-paragraph">
+        You can separate tags with space or '#' and don't use dashes in your tagging(like: tall-tree is not a valid
+        tagging)
+      </p>
+
+
+    </div>
+
   </div>
 
   {{#if isUserLogged}}
