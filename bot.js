@@ -64,7 +64,7 @@ bot.on('message', async (ctx) => {
 bot.launch();
 
 // msg is the tags that user sent
-function tagUntaggedFiles(msg, userId) {
+function tagUntaggedFiles(msg, userId, editMode = false) {
   // for some reason replaceAll threw error
   while (msg.includes('#')) msg = msg.replace('#', '');
   while (msg.includes('\n')) msg = msg.replace('\n', ' ');
@@ -79,10 +79,18 @@ function tagUntaggedFiles(msg, userId) {
 
     let tagTable = user.tagTable;
     let existingTags = Object.keys(tagTable);
-    let untaggedFiles = user.untaggedFiles;
+
+    let untaggedFiles;
+
+    if (editMode) {
+      // load the final file to edit(we don't want to edit all the files that are already in untaggedFiles)
+      untaggedFiles = [user.untaggedFiles[user.untaggedFiles.length - 1]];
+    } else {
+      untaggedFiles = user.untaggedFiles;
+    }
 
     if (untaggedFiles.length == 0) {
-      ctx.reply("There's no file to tag");
+      console.log("There's no file to tag");
       return;
     }
 
@@ -97,9 +105,17 @@ function tagUntaggedFiles(msg, userId) {
       }
     }
 
+    untaggedFiles = user.untaggedFiles;
+
+    if (editMode) untaggedFiles.splice(-1, 1);
+    // delete the last element if it's in the edit mode
+    else untaggedFiles = []; // clear the untagged files if it's not on edit mode
+
+    console.log('***\n', untaggedFiles);
+
     usersDatabase.update(
       { _id: user._id },
-      { $set: { untaggedFiles: [], tagTable: tagTable } },
+      { $set: { untaggedFiles: untaggedFiles, tagTable: tagTable } },
       {},
       (err) => {
         if (err) {

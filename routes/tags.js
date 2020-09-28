@@ -136,7 +136,7 @@ function saveNewTags(fileId, editedTags, userId) {
         console.log('error in saveNewTags', err);
         return;
       }
-      tagUntaggedFiles(editedTags, userId);
+      tagUntaggedFiles(editedTags, userId, true);
     }
   );
 
