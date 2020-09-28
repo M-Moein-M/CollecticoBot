@@ -105,17 +105,18 @@ function tagUntaggedFiles(msg, userId, editMode = false) {
       }
     }
 
-    untaggedFiles = user.untaggedFiles;
+    // make a copy
+    untaggedFiles = [...user.untaggedFiles];
 
-    if (editMode) untaggedFiles.splice(-1, 1);
+    let updatedUntagged = [...user.untaggedFiles];
+
+    if (editMode) updatedUntagged.splice(-1, 1);
     // delete the last element if it's in the edit mode
-    else untaggedFiles = []; // clear the untagged files if it's not on edit mode
-
-    console.log('***\n', untaggedFiles);
+    else updatedUntagged = []; // clear the untagged files if it's not on edit mode
 
     usersDatabase.update(
       { _id: user._id },
-      { $set: { untaggedFiles: untaggedFiles, tagTable: tagTable } },
+      { $set: { untaggedFiles: updatedUntagged, tagTable: tagTable } },
       {},
       (err) => {
         if (err) {
@@ -123,6 +124,9 @@ function tagUntaggedFiles(msg, userId, editMode = false) {
         }
       }
     );
+
+    // if it's edit mode select last element
+    if (editMode) untaggedFiles = [untaggedFiles[untaggedFiles.length - 1]];
 
     for (let fId of untaggedFiles) {
       const newImg = {
