@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const bcrypt = require('bcrypt');
 
-const { usersDatabase, hostname } = require('./app.js');
+const { usersDatabase } = require('./app.js');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -194,7 +194,7 @@ async function downloadFile(fileId) {
 }
 
 function getServerDownloadURL(fileId) {
-  return hostname + `download/${fileId}`;
+  return `/download/${fileId}`;
 }
 
 // handling downloading file

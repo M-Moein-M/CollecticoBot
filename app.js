@@ -40,7 +40,7 @@ app.use(
 // passport
 const passport = require('passport');
 
-module.exports = { usersDatabase, passport, hostname: process.env.HOST };
+module.exports = { usersDatabase, passport };
 
 const _ = require(path.join(__dirname, 'passport-config.js'))(
   passport,
