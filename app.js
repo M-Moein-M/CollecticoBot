@@ -66,6 +66,7 @@ app.use(
   '/download',
   require(path.join(__dirname, 'routes', 'download')).router
 );
+app.use('/upload', require(path.join(__dirname, 'routes', 'upload')).router);
 
 app.get('/logout', (req, res) => {
   req.logout();

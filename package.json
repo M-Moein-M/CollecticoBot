@@ -17,6 +17,7 @@
     "express-flash": "0.0.2",
     "express-handlebars": "^5.1.0",
     "express-session": "^1.17.1",
+    "formidable": "^1.2.2",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.4",
