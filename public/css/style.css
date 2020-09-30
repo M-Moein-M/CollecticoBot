@@ -41,11 +41,18 @@ body {
 /* signup page  */
 #signup-form,
 #signin-form,
-#verification-form {
+#verification-form,
+#upload-form {
   width: 400px;
   border: 2px var(--secondary-color) solid;
   border-radius: 5px;
   padding: 20px;
+}
+
+.form-control-file {
+  border: 1px solid var(--secondary-color);
+  padding: 5px;
+  border-radius: 5px;
 }
 
 #about-paragraph {

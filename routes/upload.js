@@ -3,6 +3,14 @@ const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
 
+router.get('/', isAuthenticated, isVerified, (req, res) => {
+  res.render('upload', {
+    isUserLogged: req.isAuthenticated(),
+    username: req.isAuthenticated() ? req.user.username : null,
+    isVerified: req.isAuthenticated() ? req.user.isVerified : false,
+  });
+});
+
 router.post('/', (req, res) => {
   new formidable.IncomingForm()
     .parse(req)
@@ -35,7 +43,7 @@ router.post('/', (req, res) => {
       }
     })
     .on('end', () => {
-      res.end();
+      res.redirect('/');
     });
 });
 
