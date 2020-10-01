@@ -3,6 +3,10 @@ const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
 
+const { usersDatabase } = require(path.resolve('app.js'));
+
+const tagUntaggedFiles = require(path.resolve('bot.js')).tagUntaggedFiles;
+
 router.get('/', isAuthenticated, isVerified, (req, res) => {
   res.render('upload', {
     isUserLogged: req.isAuthenticated(),
@@ -29,9 +33,14 @@ router.post('/', (req, res) => {
 
         const files = fs.readdirSync(fileDir);
 
-        let fileName = `${Math.floor(Math.random() * 10000000).toString(
-          16
-        )}.jpg`;
+        const fileId = Math.floor(Math.random() * 10000000).toString(16);
+        let fileName = `${fileId}.jpg`;
+
+        // add new fileId to untaggedFiles
+        usersDatabase.update(
+          { _id: req.user._id },
+          { $push: { untaggedFiles: fileId } }
+        );
 
         while (files.includes(fileName)) {
           // if the random name already exists, it'll random again
