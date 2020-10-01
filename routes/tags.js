@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const path = require('path');
 const fetch = require('node-fetch');
-const tagUntaggedFiles = require('./../bot').tagUntaggedFiles;
+
+const tagUntaggedFiles = require(path.resolve('bot.js')).tagUntaggedFiles;
 
 const { usersDatabase, passport } = require(path.resolve('app.js'));
 
