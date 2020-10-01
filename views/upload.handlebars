@@ -6,9 +6,20 @@
 
     <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
       <div class="form-group">
+
         <label for="uploadFile">Choose your file</label>
         <input type="file" class="form-control-file mb-2" id="uploadFile" accept="image/jpeg" name="uploadFile" />
+
+      </div>
+      <div class="form-group">
+        <input type="text" name="filesTags" class="form-control" autocomplete="off" spellcheck="false"
+          placeholder="Enter tags">
+        <small id="help" class="form-text text-muted">You can tag all your untagged files(including the ones you sent
+          for Collectico) here. If you leave this blank, your files will be saved but nothing will be tagged.</small>
+      </div>
+      <div class="form-group">
         <button type="submit" class="btn btn-success">Upload File</button>
+
       </div>
     </form>
 

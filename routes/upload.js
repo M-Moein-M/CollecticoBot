@@ -15,11 +15,11 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', isAuthenticated, isVerified, (req, res) => {
   new formidable.IncomingForm()
     .parse(req)
-    .on('field', (name, field) => {
-      console.log('Field', name, field);
+    .on('field', (name, value) => {
+      tagUntaggedFiles(value, req.user._id);
     })
 
     .on('error', (err) => {
@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
     })
     .on('fileBegin', (name, file) => {
       if (!file.name.endsWith('.jpg')) {
-        res.status(400).json({ msg: 'File extension should be jpg' });
+        console.log('Uploaded file extension does not match');
       } else {
         const fileDir = path.resolve(__dirname, '..', 'database', 'files');
 
@@ -49,11 +49,12 @@ router.post('/', (req, res) => {
 
         file.path = path.join(fileDir, fileName);
         console.log('Saved uploaded file');
+
+        if (!res.headersSent) res.redirect('/tags');
       }
-    })
-    .on('end', () => {
-      res.redirect('/');
     });
+
+  if (!res.headersSent) res.redirect('/tags');
 });
 
 function isAuthenticated(req, res, next) {
