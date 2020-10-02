@@ -16,45 +16,52 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
 });
 
 router.post('/', isAuthenticated, isVerified, (req, res) => {
-  new formidable.IncomingForm()
-    .parse(req)
-    .on('field', (name, value) => {
-      tagUntaggedFiles(value, req.user._id);
-    })
+  const form = formidable({ multiples: true });
 
-    .on('error', (err) => {
-      console.error('Error in /upload', err);
-    })
-    .on('fileBegin', (name, file) => {
-      if (!file.name.endsWith('.jpg')) {
-        console.log(file.name);
-        console.log('Uploaded file extension does not match');
-        if (!res.headersSent) res.redirect('/tags');
-      } else {
-        const fileDir = path.resolve(__dirname, '..', 'database', 'files');
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.log('Error in post upload\n', err);
+      res.redirect('/tags');
+      return;
+    }
 
-        const files = fs.readdirSync(fileDir);
+    // extract uploaded file
+    const file = files.uploadFile;
 
-        const fileId = Math.floor(Math.random() * 10000000).toString(16);
-        let fileName = `${fileId}.jpg`;
+    if (!file.type !== 'image/jpeg') {
+      console.log('Uploaded file extension does not match');
+      tagUntaggedFiles(fields.filesTags, req.user._id);
+    } else {
+      const fileDir = path.resolve(__dirname, '..', 'database', 'files');
 
-        // add new fileId to untaggedFiles
-        usersDatabase.update(
-          { _id: req.user._id },
-          { $push: { untaggedFiles: fileId } }
-        );
+      const files = fs.readdirSync(fileDir);
 
-        while (files.includes(fileName)) {
-          // if the random name already exists, it'll random again
-          fileName = `${Math.floor(Math.random() * 10000000).toString(16)}.jpg`;
+      const fileId = Math.floor(Math.random() * 10000000).toString(16);
+      let fileName = `${fileId}.jpg`;
+
+      // add new fileId to untaggedFiles
+      usersDatabase.update(
+        { _id: req.user._id },
+        { $push: { untaggedFiles: fileId } },
+        {},
+        (err) => {
+          if (err) console.log(err);
+
+          tagUntaggedFiles(fields.filesTags, req.user._id);
         }
+      );
 
-        file.path = path.join(fileDir, fileName);
-        console.log('Saved uploaded file');
-
-        if (!res.headersSent) res.redirect('/tags');
+      while (files.includes(fileName)) {
+        // if the random name already exists, it'll random again
+        fileName = `${Math.floor(Math.random() * 10000000).toString(16)}.jpg`;
       }
-    });
+
+      file.path = path.join(fileDir, fileName);
+      console.log('Saved uploaded file');
+    }
+
+    res.redirect('/tags');
+  });
 });
 
 function isAuthenticated(req, res, next) {
