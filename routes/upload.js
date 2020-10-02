@@ -4,8 +4,17 @@ const path = require('path');
 const fs = require('fs');
 
 const { usersDatabase } = require(path.resolve('app.js'));
-
 const tagUntaggedFiles = require(path.resolve('bot.js')).tagUntaggedFiles;
+
+const EventEmitter = require('events');
+class MyEmitter extends EventEmitter {}
+const eventEmitter = new MyEmitter();
+// rename file when fileId is generated
+eventEmitter.on('genFileId', (fileId) => {
+  const oldPath = path.resolve(__dirname, '..', 'database', 'files', 'newFile.jpg');
+  const newPath = path.resolve(__dirname, '..', 'database', 'files', `${fileId}.jpg`);
+  fs.renameSync(oldPath, newPath);
+});
 
 router.get('/', isAuthenticated, isVerified, (req, res) => {
   res.render('upload', {
@@ -16,7 +25,14 @@ router.get('/', isAuthenticated, isVerified, (req, res) => {
 });
 
 router.post('/', isAuthenticated, isVerified, (req, res) => {
-  const form = formidable({ multiples: true });
+  const form = formidable({
+    multiples: true,
+    uploadDir: path.resolve(__dirname, '..', 'database', 'files'),
+  });
+
+  form.on('fileBegin', (filename, file) => {
+    file.path = path.resolve(__dirname, '..', 'database', 'files', 'newFile.jpg');
+  });
 
   form.parse(req, (err, fields, files) => {
     if (err) {
@@ -28,7 +44,7 @@ router.post('/', isAuthenticated, isVerified, (req, res) => {
     // extract uploaded file
     const file = files.uploadFile;
 
-    if (!file.type !== 'image/jpeg') {
+    if (file.type !== 'image/jpeg') {
       console.log('Uploaded file extension does not match');
       tagUntaggedFiles(fields.filesTags, req.user._id);
     } else {
@@ -36,25 +52,23 @@ router.post('/', isAuthenticated, isVerified, (req, res) => {
 
       const files = fs.readdirSync(fileDir);
 
-      const fileId = Math.floor(Math.random() * 10000000).toString(16);
+      let fileId = Math.floor(Math.random() * 10000000).toString(16);
       let fileName = `${fileId}.jpg`;
-
-      // add new fileId to untaggedFiles
-      usersDatabase.update(
-        { _id: req.user._id },
-        { $push: { untaggedFiles: fileId } },
-        {},
-        (err) => {
-          if (err) console.log(err);
-
-          tagUntaggedFiles(fields.filesTags, req.user._id);
-        }
-      );
 
       while (files.includes(fileName)) {
         // if the random name already exists, it'll random again
-        fileName = `${Math.floor(Math.random() * 10000000).toString(16)}.jpg`;
+        fileId = Math.floor(Math.random() * 10000000).toString(16);
+        fileName = `${fileId}.jpg`;
       }
+
+      eventEmitter.emit('genFileId', fileId);
+
+      // add new fileId to untaggedFiles
+      usersDatabase.update({ _id: req.user._id }, { $push: { untaggedFiles: fileId } }, {}, (err) => {
+        if (err) console.log(err);
+
+        tagUntaggedFiles(fields.filesTags, req.user._id);
+      });
 
       file.path = path.join(fileDir, fileName);
       console.log('Saved uploaded file');
