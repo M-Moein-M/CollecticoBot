@@ -4,39 +4,25 @@ const fs = require('fs');
 
 const accessDeniedCode = 403;
 
-router.get(
-  '/:fileId',
-  isAuthenticated,
-  isVerified,
-  hasAccessToFile,
-  (req, res) => {
-    const filePath = path.resolve(
-      __dirname,
-      '..',
-      'database',
-      'files',
-      `${req.params.fileId}.jpg`
-    );
+router.get('/:fileId', isAuthenticated, isVerified, hasAccessToFile, (req, res) => {
+  const filePath = path.resolve(__dirname, '..', 'database', 'files', `${req.params.fileId}.jpg`);
 
-    const s = fs.createReadStream(filePath);
-    s.on('open', () => {
-      res.set('Content-Type', 'image/jpeg');
-      s.pipe(res);
-    });
-    s.on('error', () => {
-      console.log('Error at streaming files');
-    });
-  }
-);
+  const s = fs.createReadStream(filePath);
+  s.on('open', () => {
+    res.set('Content-Type', 'image/jpeg');
+    s.pipe(res);
+  });
+  s.on('error', (err) => {
+    console.log(err);
+    console.log('Error at streaming files');
+  });
+});
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) next();
   else {
-    res
-      .status(accessDeniedCode)
-      .sendFile(
-        path.resolve(__dirname, '..', 'database', 'files', 'notAuthorized.jpg')
-      );
+    console.log('access denied in download isAuth');
+    res.status(accessDeniedCode);
   }
 }
 
@@ -44,11 +30,8 @@ function isVerified(req, res, next) {
   if (req.user.isVerified) {
     next();
   } else {
-    res
-      .status(accessDeniedCode)
-      .sendFile(
-        path.resolve(__dirname, '..', 'database', 'files', 'notVerified.jpg')
-      );
+    console.log('access denied in download isVerified');
+    res.status(accessDeniedCode);
   }
 }
 
@@ -57,18 +40,13 @@ function isVerified(req, res, next) {
 function hasAccessToFile(req, res, next) {
   const requestedFile = req.params.fileId || req.body.fileId;
 
-  const filtered = req.user.filesInfo.filter(
-    (file) => file.fileId == requestedFile
-  );
+  const filtered = req.user.filesInfo.filter((file) => file.fileId == requestedFile);
 
   if (filtered.length == 0) {
     // no access
 
-    res
-      .status(accessDeniedCode)
-      .sendFile(
-        path.resolve(__dirname, '..', 'database', 'files', 'noFileAccess.jpg')
-      );
+    console.log('access denied in download hasAccess');
+    res.status(accessDeniedCode);
 
     return;
   } else {
