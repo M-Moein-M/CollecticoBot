@@ -27,7 +27,9 @@ router.post('/', isAuthenticated, isVerified, (req, res) => {
     })
     .on('fileBegin', (name, file) => {
       if (!file.name.endsWith('.jpg')) {
+        console.log(file.name);
         console.log('Uploaded file extension does not match');
+        if (!res.headersSent) res.redirect('/tags');
       } else {
         const fileDir = path.resolve(__dirname, '..', 'database', 'files');
 
@@ -53,8 +55,6 @@ router.post('/', isAuthenticated, isVerified, (req, res) => {
         if (!res.headersSent) res.redirect('/tags');
       }
     });
-
-  if (!res.headersSent) res.redirect('/tags');
 });
 
 function isAuthenticated(req, res, next) {

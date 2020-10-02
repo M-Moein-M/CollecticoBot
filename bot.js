@@ -72,6 +72,12 @@ function tagUntaggedFiles(msg, userId, editMode = false) {
   const newTags = msg.split(/[ ,]+/).filter(Boolean); // removes the wite space and extracts the tags
   console.log(newTags);
 
+  // return if tags is empty
+  if (newTags.length == 0) {
+    console.log('No tag is feeded');
+    return;
+  }
+
   // tagging user's untagged files
 
   usersDatabase.findOne({ _id: userId }, async (err, user) => {
