@@ -276,7 +276,7 @@ function isVerified(req, res, next) {
   if (req.user.isVerified) {
     next();
   } else {
-    req.redirect('verification');
+    res.redirect('/verification');
   }
 }
 
